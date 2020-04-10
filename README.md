@@ -2,9 +2,15 @@
 
 Satellites As A Service
 
+
+## Tech
+
+`cppsgp4` is swig wrapped from the [sgp4 c++ library](https://github.com/dnwrnr/sgp4).  
+`sgp4` is a wrapper to handle c++ exceptions into Go errors, and a Goish API.
+
 ## Update bindings
 
-```go
+```
 swig -c++ -intgosize 64 -go SGP4.i
 ```
 
