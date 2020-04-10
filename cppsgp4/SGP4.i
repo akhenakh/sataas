@@ -1,14 +1,23 @@
-%module sgp4
+%module cppsgp4
 %{
 #include "SGP4.h"
 #include "Observer.h"
 #include "Eci.h"
 #include "CoordGeodetic.h"
+#include "TleException.h"
 %}
 
 
 %include <typemaps.i>
 %include "std_string.i"
+%include "exception.i"
+%exception {
+    try {
+        $action;
+    } catch (std::runtime_error &e) {
+        _swig_gopanic(e.what());
+    }
+}
 
 class SGP4 {
 public:
