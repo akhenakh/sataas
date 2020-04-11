@@ -1,0 +1,2 @@
+*.cc linguist-language=Go
+*.h linguist-language=Go
