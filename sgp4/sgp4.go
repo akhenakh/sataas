@@ -36,3 +36,41 @@ func catch(err *error) {
 		*err = fmt.Errorf("%v", r)
 	}
 }
+
+type Observation struct {
+	SatLat      float64
+	SatLng      float64
+	SatAltitude float64
+	Azimuth     float64
+	Elevation   float64
+	Range       float64
+	RangeRate   float64
+}
+
+func (p *SGP4) ObservationFromLocation(lat, lng, alt float64) Observation {
+	obs := cppsgp4.NewObserver(lat, lng, alt)
+	now := cppsgp4.DateTimeNow(true)
+
+	// calculate satellite position
+	eci := p.csgp4.FindPosition(now)
+
+	// get look angle for observer to satellite
+	topo := obs.GetLookAngle(eci)
+
+	// convert satellite position to geodetic coordinates
+	geo := eci.ToGeodetic()
+
+	slat := geo.GetLatitude() * (180 / math.Pi)
+	slng := geo.GetLongitude() * (180 / math.Pi)
+	salti := geo.GetAltitude() * 1000
+
+	return Observation{
+		SatLat:      slat,
+		SatLng:      slng,
+		SatAltitude: salti,
+		Azimuth:     topo.GetAzimuth() * (180 / math.Pi),
+		Elevation:   topo.GetElevation() * (180 / math.Pi),
+		Range:       topo.GetXrange(),
+		RangeRate:   topo.GetRange_rate(),
+	}
+}

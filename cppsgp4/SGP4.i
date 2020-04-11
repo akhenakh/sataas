@@ -5,6 +5,7 @@
 #include "Eci.h"
 #include "CoordGeodetic.h"
 #include "TleException.h"
+#include "CoordTopocentric.h"
 %}
 
 
@@ -35,6 +36,7 @@ public:
 class Observer {
 public:
     Observer(const double latitude, const double longitude, const double altitude);
+    CoordTopocentric GetLookAngle(const Eci &eci);
 };
 
 
@@ -59,4 +61,9 @@ struct CoordGeodetic {
     double altitude;
 };
 
-
+struct CoordTopocentric {
+    double azimuth;
+    double elevation;
+    double range;
+    double range_rate;
+};
