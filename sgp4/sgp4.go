@@ -29,7 +29,6 @@ func NewSGP4(tle *TLE) (p *SGP4, err error) {
 
 	p = &SGP4{csgp4: cp}
 	return p, nil
-
 }
 
 func (p *SGP4) FindPosition(t time.Time) (lat, lng, alt float64) {

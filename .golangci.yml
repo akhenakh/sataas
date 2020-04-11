@@ -1,0 +1,24 @@
+run:
+  # default concurrency is a available CPU number
+  concurrency: 4
+
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  deadline: 3m
+
+  timeout: 4m
+
+  skip-files:
+    - gen.go
+    - cppsgp4/cppsgp4.go
+
+      # modules-download-mode: vendor
+
+
+linters:
+  disable:
+    - wsl
+  presets:
+    - bugs
+    - unused
+    - complexity
+    - style
