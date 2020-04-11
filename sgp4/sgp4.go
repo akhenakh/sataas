@@ -31,12 +31,15 @@ func NewSGP4(tle *TLE) (p *SGP4, err error) {
 	return p, nil
 }
 
-func (p *SGP4) FindPosition(t time.Time) (lat, lng, alt float64) {
-	// TODO: pass real time
-	dt := cppsgp4.DateTimeNow(false)
+func (p *SGP4) FindPosition(lt time.Time) (lat, lng, alt float64) {
+	t := lt.UTC()
+	dt := cppsgp4.NewDateTime(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 	eci := p.csgp4.FindPosition(dt)
 	geo := eci.ToGeodetic()
-	return geo.GetLatitude() * (180 / math.Pi), geo.GetLongitude() * (180 / math.Pi), geo.GetAltitude()
+	lat = geo.GetLatitude() * (180 / math.Pi)
+	lng = geo.GetLongitude() * (180 / math.Pi)
+	alt = geo.GetAltitude()
+	return
 }
 
 func catch(err *error) {
