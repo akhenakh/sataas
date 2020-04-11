@@ -13,7 +13,6 @@ run:
 
       # modules-download-mode: vendor
 
-
 linters:
   disable:
     - wsl

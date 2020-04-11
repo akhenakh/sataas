@@ -21,10 +21,4 @@ func main() {
 	}
 	lat, lng, alt := p.FindPosition(time.Now())
 	fmt.Println("ISS position", lat, lng, alt)
-
-	// excepting error and no panic
-	tle, err = sgp4.NewTLE("", "")
-	if err != nil {
-		log.Fatal(err)
-	}
 }
