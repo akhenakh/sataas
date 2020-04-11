@@ -8,19 +8,8 @@ import (
 	"github.com/akhenakh/sataas/cppsgp4"
 )
 
-type TLE struct {
-	ctle cppsgp4.Tle
-}
 type SGP4 struct {
 	csgp4 cppsgp4.SGP4
-}
-
-func NewTLE(tle1, tle2 string) (tle *TLE, err error) {
-	defer catch(&err)
-	ctle := cppsgp4.NewTle(tle1, tle2)
-
-	tle = &TLE{ctle: ctle}
-	return tle, nil
 }
 
 func NewSGP4(tle *TLE) (p *SGP4, err error) {

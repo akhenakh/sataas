@@ -27,6 +27,9 @@ public:
 class Tle {
 public:
     Tle(const std::string& line_one, const std::string& line_two);
+    std::string Line1() const;
+    std::string Line2() const;
+    unsigned int NoradNumber() const;
 };
 
 class Observer {
