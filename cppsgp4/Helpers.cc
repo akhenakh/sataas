@@ -7,7 +7,6 @@
 
 #include <cmath>
 #include <iostream>
-#include <vector>
 
 std::vector<struct PassDetails> GeneratePassList(
                                                const double lat,

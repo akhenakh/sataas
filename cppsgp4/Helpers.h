@@ -1,5 +1,6 @@
 #include "DateTime.h"
 #include "SGP4.h"
+#include <vector>
 
 struct EventHorizonDetails {
   DateTime time;
