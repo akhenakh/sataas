@@ -24,4 +24,7 @@ func main() {
 	obv := p.ObservationFromLocation(46.829853, -71.254028, 0)
 
 	fmt.Printf("Observation %+v\n", obv)
+
+	passes := p.GeneratePasses(46.829853, -71.254028, 0, time.Now(), time.Now().Add(24*10*time.Hour), 60)
+	fmt.Printf("Passes for the next 10 days:\n%+v\n", passes)
 }

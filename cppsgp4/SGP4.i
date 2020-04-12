@@ -6,18 +6,26 @@
 #include "CoordGeodetic.h"
 #include "TleException.h"
 #include "CoordTopocentric.h"
+#include "Helpers.h"
 %}
 
 
 %include <typemaps.i>
 %include "std_string.i"
+%include "std_vector.i"
+%include "stdint.i"
 %include "exception.i"
+
 %exception {
     try {
         $action;
     } catch (std::runtime_error &e) {
         _swig_gopanic(e.what());
     }
+}
+
+namespace std {
+   %template(PassDetailsVector) vector<PassDetails>;
 }
 
 class SGP4 {
@@ -50,7 +58,17 @@ class DateTime {
 public:
     DateTime(int year, int month, int day, int hour, int minute, int second);
     static DateTime Now(bool useMicroseconds = false);
+    double ToJulian() const;
 };
+
+std::vector<struct PassDetails> GeneratePassList(
+                                             const double lat,
+                                             const double lng,
+                                             const double alt,
+                                             SGP4& sgp4,
+                                             const DateTime& start_time,
+                                             const DateTime& end_time,
+                                             const int time_step);
 
 struct CoordGeodetic {
     /** latitude in radians (-PI >= latitude < PI) */
@@ -66,4 +84,19 @@ struct CoordTopocentric {
     double elevation;
     double range;
     double range_rate;
+};
+
+struct EventHorizonDetails {
+  DateTime time;
+  double azimuth;
+};
+
+struct PassDetails {
+  DateTime aos;
+  DateTime los;
+  double aos_azimuth;
+  double los_azimuth;
+  double max_elevation;
+  double aos_range_rate;
+  double los_range_rate;
 };
