@@ -20,7 +20,8 @@ func NewSGP4(tle *TLE) (p *SGP4, err error) {
 	return p, nil
 }
 
-func (p *SGP4) FindPosition(lt time.Time) (lat, lng, alt float64) {
+func (p *SGP4) FindPosition(lt time.Time) (lat, lng, alt float64, err error) {
+	defer catch(&err)
 	t := lt.UTC()
 	dt := cppsgp4.NewDateTime(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 	eci := p.csgp4.FindPosition(dt)

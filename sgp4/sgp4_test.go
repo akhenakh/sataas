@@ -11,7 +11,7 @@ const (
 )
 
 func TestSGP4_FindPosition(t *testing.T) {
-	tle, err := NewTLE(tle1, tle2)
+	tle, err := NewTLE("ISS", tle1, tle2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,10 @@ func TestSGP4_FindPosition(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			gotLat, gotLng, gotAlt := p.FindPosition(t1)
+			gotLat, gotLng, gotAlt, err := p.FindPosition(t1)
+			if err != nil {
+				t.Error(err)
+			}
 			if gotLat != tt.wantLat {
 				t.Errorf("FindPosition() gotLat = %v, want %v", gotLat, tt.wantLat)
 			}

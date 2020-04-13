@@ -13,7 +13,6 @@
 %include <typemaps.i>
 %include "std_string.i"
 %include "std_vector.i"
-%include "stdint.i"
 %include "exception.i"
 
 %exception {
@@ -35,9 +34,10 @@ public:
 };
 class Tle {
 public:
-    Tle(const std::string& line_one, const std::string& line_two);
+    Tle(const std::string& name, const std::string& line_one, const std::string& line_two);
     std::string Line1() const;
     std::string Line2() const;
+    std::string Name() const;
     unsigned int NoradNumber() const;
 };
 

@@ -1,6 +1,7 @@
 package sgp4
 
 import (
+	"os"
 	"testing"
 )
 
@@ -15,12 +16,12 @@ func TestNewTLE(t *testing.T) {
 	}{
 		{name: "empty", tle1: "", tle2: "", notNil: false, wantErr: true},
 		{name: "bogus", tle1: "234324 234 234324", tle2: "234234 234432", notNil: false, wantErr: true},
-		{name: "valid", tle1: tle1, tle2: tle2, notNil: true, wantErr: false, wantNoradNumber: 25544},
+		{name: "iss", tle1: tle1, tle2: tle2, notNil: true, wantErr: false, wantNoradNumber: 25544},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt := tt
-			gotTle, err := NewTLE(tt.tle1, tt.tle2)
+			gotTle, err := NewTLE(tt.name, tt.tle1, tt.tle2)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewTLE() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -44,6 +45,29 @@ func TestNewTLE(t *testing.T) {
 				t.Errorf("Line2() = %v, tle2 %v", gotTle.Line2(), tt.tle2)
 				return
 			}
+
+			if (gotTle != nil) && tt.name != gotTle.Name() {
+				t.Errorf("Name() = %v, name %v", gotTle.Name(), tt.name)
+				return
+			}
 		})
+	}
+}
+
+func TestActives(t *testing.T) {
+	f, err := os.Open("testdata/active.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := NewTLEReader(f)
+	tles, err := r.ReadAllTLE()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 8232 lines
+	if len(tles) != 8226/3 {
+		t.Fatal("invalid sats count")
 	}
 }
