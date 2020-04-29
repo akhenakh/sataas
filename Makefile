@@ -11,7 +11,7 @@ CGO_ENABLED=1
 
 targets = sataas 
 
-.PHONY: all lint test clean
+.PHONY: all lint test clean swig sataas docker-image
 
 all: lint test $(targets)
 

@@ -48,18 +48,18 @@ func TestSGP4_FindPosition(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			gotLat, gotLng, gotAlt, err := p.FindPosition(t1)
+			gotLat, gotLng, gotAlt, err := p.Position(t1)
 			if err != nil {
 				t.Error(err)
 			}
 			if gotLat != tt.wantLat {
-				t.Errorf("FindPosition() gotLat = %v, want %v", gotLat, tt.wantLat)
+				t.Errorf("Position() gotLat = %v, want %v", gotLat, tt.wantLat)
 			}
 			if gotLng != tt.wantLng {
-				t.Errorf("FindPosition() gotLng = %v, want %v", gotLng, tt.wantLng)
+				t.Errorf("Position() gotLng = %v, want %v", gotLng, tt.wantLng)
 			}
 			if gotAlt != tt.wantAlt {
-				t.Errorf("FindPosition() gotAlt = %v, want %v", gotAlt, tt.wantAlt)
+				t.Errorf("Position() gotAlt = %v, want %v", gotAlt, tt.wantAlt)
 			}
 		})
 	}

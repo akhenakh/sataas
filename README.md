@@ -16,5 +16,6 @@ swig -c++ -intgosize 64 -go SGP4.i
 
 ## TLE data
 
-https://digitalarsenal.io/data/all.txt
+https://digitalarsenal.io/data/all.txt  
+https://celestrak.com/NORAD/elements/active.txt  
 http://www.amsat.org/amsat/ftp/keps/current/nasabare.txt

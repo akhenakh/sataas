@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+service Prediction {
+    rpc SatInfos (SatRequest) returns (SatInfosResponse) {}
+    rpc SatLocation (SatLocationRequest) returns (Location) {}
+}
+
+message SatRequest {
+    int32 norad_number = 1;
+}
+
+message SatInfosResponse {
+    int32 norad_number = 1;
+    string name = 2;
+    string tle1 = 3;
+    string tle2 = 4;
+}
+
+message Location {
+    double latitude = 1;
+    double longitude = 2;
+    double altitude = 3;
+}
+
+message SatLocationRequest {
+    int32 norad_number = 1;
+    google.protobuf.Timestamp time = 2;
+}
