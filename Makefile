@@ -11,7 +11,7 @@ CGO_ENABLED=1
 
 targets = sataas 
 
-.PHONY: all lint test clean swig sataas docker-image
+.PHONY: all lint test clean swig sataas satcli docker-image
 
 all: lint test $(targets)
 
@@ -22,7 +22,10 @@ lint:
 	golangci-lint run
 
 sataas:
-	cd cmd/sataas && go build -a $(LDFLAGS)
+	cd cmd/sataas && go build $(LDFLAGS)
+
+satcli:
+	cd cmd/satcli && go build $(LDFLAGS)
 
 swig:
 	cd cppsgp4 && swig -c++ -intgosize 64 -go SGP4.i

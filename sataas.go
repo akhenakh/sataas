@@ -3,16 +3,17 @@ package sataas
 import (
 	"context"
 	"fmt"
-	"net/http"
+	"time"
 
 	log "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/hashicorp/go-retryablehttp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/akhenakh/sataas/satsvc"
 	"github.com/akhenakh/sataas/sgp4"
-	"github.com/akhenakh/sataas/sgp4svc"
 )
 
 type Service struct {
@@ -33,18 +34,16 @@ func New(logger log.Logger, tleURL string) *Service {
 
 // UpdateTLEs fetch all TLEs and update them.
 func (s *Service) UpdateTLEs() error {
-	resp, err := http.Get(s.tleURL)
+	resp, err := retryablehttp.Get(s.tleURL)
 	if err != nil {
-		level.Error(s.logger).Log("msg", "failed while fetching TLEs", "error", err, "tle_url", s.tleURL)
-		return fmt.Errorf("failed while fetching TLEs %v", err)
+		return fmt.Errorf("failed while fetching TLEs: %w", err)
 	}
 	defer resp.Body.Close()
 
 	r := sgp4.NewTLEReader(resp.Body)
 	tles, err := r.ReadAllTLE()
 	if err != nil {
-		level.Error(s.logger).Log("msg", "failed reading TLEs", "error", err)
-		return fmt.Errorf("failed reading TLEs %v", err)
+		return fmt.Errorf("failed reading TLEs: %w", err)
 	}
 
 	for _, tle := range tles {
@@ -57,16 +56,18 @@ func (s *Service) UpdateTLEs() error {
 		s.sats.Set(int32(tle.NoradNumber()), sat)
 	}
 
+	level.Info(s.logger).Log("msg", "updated TLEs", "count", len(tles))
+
 	return nil
 }
 
 // SatInfos gRPC exposed to query satellites infos.
-func (s *Service) SatInfos(ctx context.Context, req *sgp4svc.SatRequest) (*sgp4svc.SatInfosResponse, error) {
+func (s *Service) SatInfos(ctx context.Context, req *satsvc.SatRequest) (*satsvc.SatInfosResponse, error) {
 	sat, ok := s.sats.Get(req.NoradNumber)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "non existing norad id")
 	}
-	return &sgp4svc.SatInfosResponse{
+	return &satsvc.SatInfosResponse{
 		NoradNumber: int32(sat.TLE.NoradNumber()),
 		Name:        sat.TLE.Name(),
 		Tle1:        sat.TLE.Line1(),
@@ -75,15 +76,18 @@ func (s *Service) SatInfos(ctx context.Context, req *sgp4svc.SatRequest) (*sgp4s
 }
 
 // SatLocation gRPC exposed satellites position.
-func (s *Service) SatLocation(ctx context.Context, req *sgp4svc.SatLocationRequest) (*sgp4svc.Location, error) {
+func (s *Service) SatLocation(ctx context.Context, req *satsvc.SatLocationRequest) (*satsvc.Location, error) {
 	sat, ok := s.sats.Get(req.NoradNumber)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "non existing norad id")
 	}
-
-	t, err := ptypes.Timestamp(req.Time)
-	if err != nil {
-		return nil, err
+	t := time.Now()
+	if req.Time != nil {
+		pt, err := ptypes.Timestamp(req.Time)
+		if err != nil {
+			return nil, err
+		}
+		t = pt
 	}
 
 	lat, lng, alt, err := sat.Position(t)
@@ -91,7 +95,7 @@ func (s *Service) SatLocation(ctx context.Context, req *sgp4svc.SatLocationReque
 		return nil, err
 	}
 
-	return &sgp4svc.Location{
+	return &satsvc.Location{
 		Latitude:  lat,
 		Longitude: lng,
 		Altitude:  alt,

@@ -27,8 +27,9 @@ func (r *TLEReader) ReadAllTLE() ([]*TLE, error) {
 		if count >= 2 {
 			tle, err := NewTLE(strings.TrimSpace(lines[0]), lines[1], lines[2])
 			if err != nil {
-				fmt.Printf("error tle [%s]\n[%s]", lines[1], lines[2])
-				return nil, err
+				fmt.Printf("error tle: %v [%s]\n[%s]\n", err, lines[1], lines[2])
+				count = 0
+				continue
 			}
 			tles = append(tles, tle)
 			count = 0

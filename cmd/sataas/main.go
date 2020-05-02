@@ -26,7 +26,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 
 	"github.com/akhenakh/sataas"
-	"github.com/akhenakh/sataas/sgp4svc"
+	"github.com/akhenakh/sataas/satsvc"
 )
 
 const appName = "sataas"
@@ -38,7 +38,10 @@ var (
 	healthPort      = flag.Int("healthPort", 6666, "grpc health port")
 	httpMetricsPort = flag.Int("httpMetricsPort", 8088, "http port")
 
-	tleURL   = flag.String("tleURL", "http://www.amsat.org/amsat/ftp/keps/current/nasabare.txt", "default URL to fetch")
+	tleURL = flag.String(
+		"tleURL",
+		"https://celestrak.com/NORAD/elements/active.txt",
+		"default URL to fetch")
 	logLevel = flag.String("logLevel", "INFO", "DEBUG|INFO|WARN|ERROR")
 
 	grpcServer        *grpc.Server
@@ -131,7 +134,7 @@ func main() {
 				grpc_prometheus.UnaryServerInterceptor,
 			)),
 		)
-		sgp4svc.RegisterPredictionServer(grpcServer, s)
+		satsvc.RegisterPredictionServer(grpcServer, s)
 		level.Info(logger).Log("msg", fmt.Sprintf("gRPC server serving at %s", addr))
 
 		healthServer.SetServingStatus(fmt.Sprintf("grpc.health.v1.%s", appName), healthpb.HealthCheckResponse_SERVING)
@@ -144,9 +147,44 @@ func main() {
 		level.Error(logger).Log("msg", "can't update TLEs", "error", err)
 	}
 
+	healthServer.SetServingStatus(fmt.Sprintf("grpc.health.v1.%s", appName), healthpb.HealthCheckResponse_SERVING)
+	level.Info(logger).Log("msg", "serving status to SERVING")
+
+	select {
+	case <-interrupt:
+		cancel()
+		break
+	case <-ctx.Done():
+		break
+	}
+
+	level.Warn(logger).Log("msg", "received shutdown signal")
+
+	healthServer.SetServingStatus(fmt.Sprintf("grpc.health.v1.%s", appName), healthpb.HealthCheckResponse_NOT_SERVING)
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	if grpcServer != nil {
+		grpcServer.GracefulStop()
+	}
+
+	if httpMetricsServer != nil {
+		_ = httpMetricsServer.Shutdown(shutdownCtx)
+	}
+
+	if grpcHealthServer != nil {
+		grpcHealthServer.GracefulStop()
+	}
+
+	err = g.Wait()
+	if err != nil {
+		level.Error(logger).Log("msg", "server returning an error", "error", err)
+		os.Exit(2)
+	}
 }
 
-// NewLevelFilterFromString filter the log level using the string "DEBUG|INFO|WARN|ERROR"
+// NewLevelFilterFromString filter the log level using the string "DEBUG|INFO|WARN|ERROR".
 func NewLevelFilterFromString(next log.Logger, ls string) log.Logger {
 	switch strings.ToLower(ls) {
 	case "debug":

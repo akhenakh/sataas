@@ -17,3 +17,4 @@
 .idea/
 
 /cmd/sataas/sataas
+/cmd/satcli/satcli
