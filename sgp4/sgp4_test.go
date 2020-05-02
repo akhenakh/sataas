@@ -1,8 +1,10 @@
-package sgp4
+package sgp4_test
 
 import (
 	"testing"
 	"time"
+
+	"github.com/akhenakh/sataas/sgp4"
 )
 
 const (
@@ -11,11 +13,11 @@ const (
 )
 
 func TestSGP4_FindPosition(t *testing.T) {
-	tle, err := NewTLE("ISS", tle1, tle2)
+	tle, err := sgp4.NewTLE("ISS", tle1, tle2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := NewSGP4(tle)
+	p, err := sgp4.NewSGP4(tle)
 	if err != nil {
 		t.Fatal(err)
 	}

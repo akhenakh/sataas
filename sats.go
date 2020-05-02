@@ -9,7 +9,6 @@ import (
 )
 
 type Sat struct {
-	mu *sync.Mutex
 	*sgp4.SGP4
 	*sgp4.TLE
 	updateTime time.Time

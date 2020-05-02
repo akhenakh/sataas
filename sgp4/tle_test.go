@@ -1,8 +1,10 @@
-package sgp4
+package sgp4_test
 
 import (
 	"os"
 	"testing"
+
+	"github.com/akhenakh/sataas/sgp4"
 )
 
 func TestNewTLE(t *testing.T) {
@@ -21,7 +23,7 @@ func TestNewTLE(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt := tt
-			gotTle, err := NewTLE(tt.name, tt.tle1, tt.tle2)
+			gotTle, err := sgp4.NewTLE(tt.name, tt.tle1, tt.tle2)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewTLE() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -60,7 +62,7 @@ func TestActives(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r := NewTLEReader(f)
+	r := sgp4.NewTLEReader(f)
 	tles, err := r.ReadAllTLE()
 	if err != nil {
 		t.Fatal(err)
