@@ -38,6 +38,10 @@ make satcli && ./cmd/satcli/satcli -noradNumber=25544
 swig -c++ -intgosize 64 -go SGP4.i
 ```
 
+## Self Promo
+
+Check my iOS app [SatSat](https://satsat.inair.space/), it's free and offers Satellites passes predictions.
+
 ## TLE data
 
 https://digitalarsenal.io/data/all.txt  
