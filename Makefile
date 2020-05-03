@@ -43,4 +43,5 @@ docker-image: sataas grpc_health_probe
 
 clean:
 	rm -f cmd/sataas/sataas
+	rm -f cmd/satcli/satcli
 	rm -r cmd/sataas/grpc_health_probe

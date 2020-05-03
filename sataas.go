@@ -67,11 +67,17 @@ func (s *Service) SatInfos(ctx context.Context, req *satsvc.SatRequest) (*satsvc
 	if !ok {
 		return nil, status.Error(codes.NotFound, "non existing norad id")
 	}
+
+	ut, err := ptypes.TimestampProto(sat.updateTime)
+	if !ok {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("can't serialize time %v", err))
+	}
 	return &satsvc.SatInfosResponse{
 		NoradNumber: int32(sat.TLE.NoradNumber()),
 		Name:        sat.TLE.Name(),
 		Tle1:        sat.TLE.Line1(),
 		Tle2:        sat.TLE.Line2(),
+		UpdateTime:  ut,
 	}, nil
 }
 
@@ -100,4 +106,65 @@ func (s *Service) SatLocation(ctx context.Context, req *satsvc.SatLocationReques
 		Longitude: lng,
 		Altitude:  alt,
 	}, nil
+}
+
+// GenPasses gRPC exposed to generate satellites passes.
+func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (*satsvc.Passes, error) {
+	sat, ok := s.sats.Get(req.NoradNumber)
+	if !ok {
+		return nil, status.Error(codes.NotFound, "non existing norad id")
+	}
+
+	if req.Location == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid location")
+	}
+
+	if req.StartTime == nil || req.StopTime == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid time")
+	}
+
+	startt, err := ptypes.Timestamp(req.StartTime)
+	if err != nil {
+		return nil, err
+	}
+
+	stopp, err := ptypes.Timestamp(req.StopTime)
+	if err != nil {
+		return nil, err
+	}
+
+	passesDetails := sat.GeneratePasses(
+		req.Location.Latitude,
+		req.Location.Latitude,
+		req.Location.Altitude,
+		startt,
+		stopp,
+		int(req.StepSeconds),
+	)
+
+	passes := make([]*satsvc.Pass, len(passesDetails))
+
+	for i, pd := range passesDetails {
+		aos, err := ptypes.TimestampProto(pd.AOS)
+		if !ok {
+			return nil, status.Error(codes.Internal, fmt.Sprintf("can't serialize aos time %v", err))
+		}
+
+		los, err := ptypes.TimestampProto(pd.LOS)
+		if !ok {
+			return nil, status.Error(codes.Internal, fmt.Sprintf("can't serialize los time %v", err))
+		}
+
+		passes[i] = &satsvc.Pass{
+			Aos:          aos,
+			Los:          los,
+			AosAzimuth:   pd.AOSAzimuth,
+			LosAzimuth:   pd.LOSAzimuth,
+			MaxElevation: pd.MaxElevation,
+			AosRangeRate: pd.AOSRangeRate,
+			LosRangeRate: pd.LOSRangeRate,
+		}
+	}
+
+	return &satsvc.Passes{Passes: passes}, nil
 }
