@@ -4,10 +4,8 @@ name: default
 steps:
   - name: test
     image: golang:alpine
-    environment:
-      CC: musl-gcc
     commands:
-      - apk add --no-cache git make build-base
+      - apk add --no-cache musl-dev
       - go test ./...
-      - make sataas
-      - make satcli
+      - CC=$(which musl-gcc) make sataas
+      - CC=$(which musl-gcc) make satcli
