@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"time"
 
@@ -22,7 +23,8 @@ var (
 
 	duration = flag.Duration("duration", 24*time.Hour, "compute passes from now to duration")
 
-	noradNumber = flag.Uint("noradNumber", 25544, "Norad number sat to query")
+	noradNumber = flag.Uint("noradNumber", 25544, "norad number sat to query")
+	stepsMs     = flag.Uint("stepsMs", 1000, "recompute position every stepsMs (in ms)")
 )
 
 func main() {
@@ -62,6 +64,12 @@ func main() {
 
 	log.Printf("Location %+v", loc)
 
+	obsLoc := &satsvc.Location{
+		Latitude:  *lat,
+		Longitude: *lng,
+		Altitude:  *alt,
+	}
+
 	starttp := ptypes.TimestampNow()
 
 	stopt := time.Now().Add(*duration)
@@ -69,16 +77,38 @@ func main() {
 	stoptp, _ := ptypes.TimestampProto(stopt)
 
 	passes, err := c.GenPasses(ctx, &satsvc.GenPassesRequest{
-		NoradNumber: int32(*noradNumber),
-		Location: &satsvc.Location{
-			Latitude:  *lat,
-			Longitude: *lng,
-			Altitude:  *alt,
-		},
-		StartTime:   starttp,
-		StopTime:    stoptp,
-		StepSeconds: 30,
+		NoradNumber:      int32(*noradNumber),
+		ObserverLocation: obsLoc,
+		StartTime:        starttp,
+		StopTime:         stoptp,
+		StepSeconds:      30,
 	})
 
 	log.Printf("Passes to %s:\n%#v", stopt, passes.String())
+
+	req := &satsvc.SatLocationFromObsRequest{
+		NoradNumber:      int32(*noradNumber),
+		ObserverLocation: obsLoc,
+		StepsMs:          int32(*stepsMs),
+	}
+
+	stream, err := c.SatLocationFromObs(context.Background(), req)
+
+	for {
+		obs, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("Latitude : %.02f Longitude : %.02f Altitude: %.01fkm\nAzimuth : %.0f Elevation %.01f Range: %.01fkm RangeRage: %f\n",
+			obs.SatLocation.Latitude,
+			obs.SatLocation.Longitude,
+			obs.SatLocation.Altitude,
+			obs.Azimuth,
+			obs.Elevation,
+			obs.Range,
+			obs.RangeRate)
+	}
 }

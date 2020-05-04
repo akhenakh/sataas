@@ -3,6 +3,7 @@ package sataas
 import (
 	"context"
 	"fmt"
+	"io"
 	"time"
 
 	log "github.com/go-kit/kit/log"
@@ -10,6 +11,8 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/go-retryablehttp"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 
 	"github.com/akhenakh/sataas/satsvc"
@@ -18,17 +21,22 @@ import (
 
 type Service struct {
 	logger log.Logger
+	Health *health.Server
 
 	tleURL string
 	sats   *ActiveSats
+
+	gCtx context.Context
 }
 
 // New returns a new Sataas service manager.
-func New(logger log.Logger, tleURL string) *Service {
+func New(ctx context.Context, logger log.Logger, health *health.Server, tleURL string) *Service {
 	return &Service{
 		logger: log.With(logger, "components", "service"),
+		Health: health,
 		tleURL: tleURL,
 		sats:   NewActiveSats(),
+		gCtx:   ctx,
 	}
 }
 
@@ -108,6 +116,59 @@ func (s *Service) SatLocation(ctx context.Context, req *satsvc.SatLocationReques
 	}, nil
 }
 
+// SatLocationFromObs gRPC exposed stream Live Sat observation.
+func (s *Service) SatLocationFromObs(req *satsvc.SatLocationFromObsRequest, stream satsvc.Prediction_SatLocationFromObsServer) error {
+	sat, ok := s.sats.Get(req.NoradNumber)
+	if !ok {
+		return status.Error(codes.NotFound, "non existing norad id")
+	}
+
+	if req.ObserverLocation == nil {
+		return status.Error(codes.InvalidArgument, "invalid observer location")
+	}
+
+	ticker := time.NewTicker(time.Duration(req.StepsMs) * time.Millisecond)
+
+	for {
+		select {
+		case <-s.gCtx.Done():
+			ticker.Stop()
+			return nil
+		case <-stream.Context().Done():
+			ticker.Stop()
+			return nil
+		case <-ticker.C:
+			s.Health.Check(stream.Context(), &healthpb.HealthCheckRequest{
+				Service: "",
+			})
+			sobs := sat.SGP4.ObservationFromLocation(
+				req.ObserverLocation.Latitude,
+				req.ObserverLocation.Longitude,
+				req.ObserverLocation.Altitude,
+			)
+			obs := &satsvc.Observation{
+				NoradNumber: req.NoradNumber,
+				SatLocation: &satsvc.Location{
+					Latitude:  sobs.SatLat,
+					Longitude: sobs.SatLng,
+					Altitude:  sobs.SatAltitude,
+				},
+				Azimuth:   sobs.Azimuth,
+				Elevation: sobs.Elevation,
+				Range:     sobs.Range,
+				RangeRate: sobs.RangeRate,
+			}
+
+			if err := stream.Send(obs); err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return err
+			}
+		}
+	}
+}
+
 // GenPasses gRPC exposed to generate satellites passes.
 func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (*satsvc.Passes, error) {
 	sat, ok := s.sats.Get(req.NoradNumber)
@@ -115,8 +176,8 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 		return nil, status.Error(codes.NotFound, "non existing norad id")
 	}
 
-	if req.Location == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid location")
+	if req.ObserverLocation == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid observer location")
 	}
 
 	if req.StartTime == nil || req.StopTime == nil {
@@ -134,9 +195,9 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 	}
 
 	passesDetails := sat.GeneratePasses(
-		req.Location.Latitude,
-		req.Location.Latitude,
-		req.Location.Altitude,
+		req.ObserverLocation.Latitude,
+		req.ObserverLocation.Latitude,
+		req.ObserverLocation.Altitude,
 		startt,
 		stopp,
 		int(req.StepSeconds),

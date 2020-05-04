@@ -71,16 +71,16 @@ func (p *SGP4) ObservationFromLocation(lat, lng, alt float64) Observation {
 	// convert satellite position to geodetic coordinates
 	geo := eci.ToGeodetic()
 
-	slat := geo.GetLatitude() * (180 / math.Pi)
-	slng := geo.GetLongitude() * (180 / math.Pi)
-	salti := geo.GetAltitude() * 1000
+	slat := geo.GetLatitude() * (180.0 / math.Pi)
+	slng := geo.GetLongitude() * (180.0 / math.Pi)
+	salti := geo.GetAltitude()
 
 	return Observation{
 		SatLat:      slat,
 		SatLng:      slng,
 		SatAltitude: salti,
-		Azimuth:     topo.GetAzimuth() * 180 / math.Pi,
-		Elevation:   topo.GetElevation() * 180 / math.Pi,
+		Azimuth:     topo.GetAzimuth() * (180.0 / math.Pi),
+		Elevation:   topo.GetElevation() * (180.0 / math.Pi),
 		Range:       topo.GetXrange(),
 		RangeRate:   topo.GetRange_rate(),
 	}
@@ -107,9 +107,9 @@ func (p *SGP4) GeneratePasses(lat, lng, alt float64, start, stop time.Time, step
 		details[i] = PassDetails{
 			AOS:          aos,
 			LOS:          los,
-			AOSAzimuth:   cpd.GetAos_azimuth() * 180.0 / math.Pi,
-			LOSAzimuth:   cpd.GetLos_azimuth() * 180.0 / math.Pi,
-			MaxElevation: cpd.GetMax_elevation() * 180.0 / math.Pi,
+			AOSAzimuth:   cpd.GetAos_azimuth() * (180.0 / math.Pi),
+			LOSAzimuth:   cpd.GetLos_azimuth() * (180.0 / math.Pi),
+			MaxElevation: cpd.GetMax_elevation() * (180.0 / math.Pi),
 			AOSRangeRate: cpd.GetAos_range_rate(),
 			LOSRangeRate: cpd.GetLos_range_rate(),
 		}

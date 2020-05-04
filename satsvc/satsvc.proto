@@ -5,6 +5,7 @@ import "google/protobuf/timestamp.proto";
 service Prediction {
     rpc SatInfos (SatRequest) returns (SatInfosResponse) {}
     rpc SatLocation (SatLocationRequest) returns (Location) {}
+    rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
     rpc GenPasses(GenPassesRequest) returns (Passes) {}
 }
 
@@ -26,14 +27,29 @@ message Location {
     double altitude = 3;
 }
 
+message Observation {
+    int32 norad_number = 1;
+    Location sat_location = 2;
+	double azimuth = 3;
+	double elevation = 4;
+	double range = 5;
+	double range_rate = 6;
+}
+
 message SatLocationRequest {
     int32 norad_number = 1;
     google.protobuf.Timestamp time = 2;
 }
 
+message SatLocationFromObsRequest {
+    int32 norad_number = 1;
+    Location observer_location = 2;
+    int32 steps_ms = 3;
+}
+
 message GenPassesRequest {
     int32 norad_number = 1;
-    Location location = 2;
+    Location observer_location = 2;
     google.protobuf.Timestamp start_time = 3;
     google.protobuf.Timestamp stop_time = 4;
     int32 step_seconds = 5;

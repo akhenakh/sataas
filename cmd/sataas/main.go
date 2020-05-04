@@ -72,8 +72,6 @@ func main() {
 
 	g, ctx := errgroup.WithContext(ctx)
 
-	s := sataas.New(logger, *tleURL)
-
 	// gRPC Health Server
 	healthServer := health.NewServer()
 	g.Go(func() error {
@@ -111,6 +109,9 @@ func main() {
 
 		return nil
 	})
+
+	// our sataas service
+	s := sataas.New(ctx, logger, healthServer, *tleURL)
 
 	// gRPC Server
 	g.Go(func() error {
