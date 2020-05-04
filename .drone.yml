@@ -5,7 +5,7 @@ steps:
   - name: test
     image: golang:alpine
     environment:
-      CC=musl-gcc
+      CC: musl-gcc
     commands:
       - apk add --no-cache git make build-base
       - go test ./...
