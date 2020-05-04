@@ -7,5 +7,5 @@ steps:
     commands:
       - apk add --no-cache musl-dev build-base
       - go test ./...
-      - CC=$(which musl-gcc) make sataas
-      - CC=$(which musl-gcc) make satcli
+      - make sataas
+      - make satcli
