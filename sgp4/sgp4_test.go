@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/akhenakh/sataas/sgp4"
 )
 
@@ -47,22 +49,13 @@ func TestSGP4_FindPosition(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t1, err := time.Parse(time.RFC3339, tt.tString)
-			if err != nil {
-				t.Error(err)
-			}
+			require.NoError(t, err)
 			gotLat, gotLng, gotAlt, err := p.Position(t1)
-			if err != nil {
-				t.Error(err)
-			}
-			if gotLat != tt.wantLat {
-				t.Errorf("Position() gotLat = %v, want %v", gotLat, tt.wantLat)
-			}
-			if gotLng != tt.wantLng {
-				t.Errorf("Position() gotLng = %v, want %v", gotLng, tt.wantLng)
-			}
-			if gotAlt != tt.wantAlt {
-				t.Errorf("Position() gotAlt = %v, want %v", gotAlt, tt.wantAlt)
-			}
+			require.NoError(t, err)
+
+			require.InDeltaf(t, tt.wantLat, gotLat, 0.0000001, "invalid lat not in deltra")
+			require.InDeltaf(t, tt.wantLng, gotLng, 0.0000001, "invalid lng not in deltra")
+			require.InDeltaf(t, tt.wantAlt, gotAlt, 0.0000001, "invalid alt not in deltra")
 		})
 	}
 }

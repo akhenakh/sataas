@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/akhenakh/sataas/sgp4"
 )
 
@@ -58,18 +60,12 @@ func TestNewTLE(t *testing.T) {
 
 func TestActives(t *testing.T) {
 	f, err := os.Open("testdata/active.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	r := sgp4.NewTLEReader(f)
 	tles, err := r.ReadAllTLE()
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	// 8232 lines
-	if len(tles) != 8226/3 {
-		t.Fatal("invalid sats count")
-	}
+	require.Len(t, tles, 8226/3)
 }
