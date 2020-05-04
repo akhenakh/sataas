@@ -5,6 +5,7 @@ steps:
   - name: test
     image: golang:alpine
     commands:
+      - apk add --no-cache git make build-base
       - go test -race ./...
       - make sataas
       - make satcli
