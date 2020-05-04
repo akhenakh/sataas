@@ -6,6 +6,6 @@ steps:
     image: golang:alpine
     commands:
       - apk add --no-cache musl-dev build-base git
-      - go test -race ./...
+      - go test ./...
       - make sataas
       - make satcli
