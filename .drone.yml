@@ -6,6 +6,6 @@ steps:
     image: golang:alpine
     commands:
       - apk add --no-cache musl-dev
-      - go test ./...
+      - CC=$(which musl-gcc) go test ./...
       - CC=$(which musl-gcc) make sataas
       - CC=$(which musl-gcc) make satcli
