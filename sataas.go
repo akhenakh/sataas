@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health"
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 
 	"github.com/akhenakh/sataas/satsvc"
@@ -117,12 +116,8 @@ func (s *Service) SatLocation(ctx context.Context, req *satsvc.SatLocationReques
 }
 
 // SatLocationFromObs gRPC exposed stream Live Sat observation.
-func (s *Service) SatLocationFromObs(req *satsvc.SatLocationFromObsRequest, stream satsvc.Prediction_SatLocationFromObsServer) error {
-	sat, ok := s.sats.Get(req.NoradNumber)
-	if !ok {
-		return status.Error(codes.NotFound, "non existing norad id")
-	}
-
+func (s *Service) SatLocationFromObs(req *satsvc.SatLocationFromObsRequest,
+	stream satsvc.Prediction_SatLocationFromObsServer) error {
 	if req.ObserverLocation == nil {
 		return status.Error(codes.InvalidArgument, "invalid observer location")
 	}
@@ -138,32 +133,36 @@ func (s *Service) SatLocationFromObs(req *satsvc.SatLocationFromObsRequest, stre
 			ticker.Stop()
 			return nil
 		case <-ticker.C:
-			s.Health.Check(stream.Context(), &healthpb.HealthCheckRequest{
-				Service: "",
-			})
-			sobs := sat.SGP4.ObservationFromLocation(
-				req.ObserverLocation.Latitude,
-				req.ObserverLocation.Longitude,
-				req.ObserverLocation.Altitude,
-			)
-			obs := &satsvc.Observation{
-				NoradNumber: req.NoradNumber,
-				SatLocation: &satsvc.Location{
-					Latitude:  sobs.SatLat,
-					Longitude: sobs.SatLng,
-					Altitude:  sobs.SatAltitude,
-				},
-				Azimuth:   sobs.Azimuth,
-				Elevation: sobs.Elevation,
-				Range:     sobs.Range,
-				RangeRate: sobs.RangeRate,
-			}
-
-			if err := stream.Send(obs); err != nil {
-				if err == io.EOF {
-					return nil
+			for _, nid := range req.NoradNumbers {
+				sat, ok := s.sats.Get(nid)
+				if !ok {
+					return status.Error(codes.NotFound, "non existing norad id")
 				}
-				return err
+
+				sobs := sat.SGP4.ObservationFromLocation(
+					req.ObserverLocation.Latitude,
+					req.ObserverLocation.Longitude,
+					req.ObserverLocation.Altitude,
+				)
+				obs := &satsvc.Observation{
+					NoradNumber: nid,
+					SatLocation: &satsvc.Location{
+						Latitude:  sobs.SatLat,
+						Longitude: sobs.SatLng,
+						Altitude:  sobs.SatAltitude,
+					},
+					Azimuth:   sobs.Azimuth,
+					Elevation: sobs.Elevation,
+					Range:     sobs.Range,
+					RangeRate: sobs.RangeRate,
+				}
+
+				if err := stream.Send(obs); err != nil {
+					if err == io.EOF {
+						return nil
+					}
+					return err
+				}
 			}
 		}
 	}

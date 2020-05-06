@@ -42,7 +42,7 @@ message SatLocationRequest {
 }
 
 message SatLocationFromObsRequest {
-    int32 norad_number = 1;
+    repeated int32 norad_numbers = 1;
     Location observer_location = 2;
     int32 steps_ms = 3;
 }

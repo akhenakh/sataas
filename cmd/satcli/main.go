@@ -87,12 +87,15 @@ func main() {
 	log.Printf("Passes to %s:\n%#v", stopt, passes.String())
 
 	req := &satsvc.SatLocationFromObsRequest{
-		NoradNumber:      int32(*noradNumber),
+		NoradNumbers:     []int32{int32(*noradNumber)},
 		ObserverLocation: obsLoc,
 		StepsMs:          int32(*stepsMs),
 	}
 
 	stream, err := c.SatLocationFromObs(context.Background(), req)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for {
 		obs, err := stream.Recv()
@@ -102,7 +105,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("Latitude : %.02f Longitude : %.02f Altitude: %.01fkm\nAzimuth : %.0f Elevation %.01f Range: %.01fkm RangeRage: %f\n",
+
+		log.Printf("Latitude : %.02f Longitude : %.02f Altitude: %.01fkm\n"+
+			"Azimuth : %.0f Elevation %.01f Range: %.01fkm RangeRate: %f\n",
 			obs.SatLocation.Latitude,
 			obs.SatLocation.Longitude,
 			obs.SatLocation.Altitude,
