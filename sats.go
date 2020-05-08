@@ -8,13 +8,14 @@ import (
 	"github.com/akhenakh/sataas/sgp4"
 )
 
+// Sat is holding live propagation obj to compute predictions.
 type Sat struct {
 	*sgp4.SGP4
 	*sgp4.TLE
 	updateTime time.Time
 }
 
-// ActiveSats for the sataas
+// ActiveSats for the sataas.
 type ActiveSats struct {
 	*sync.RWMutex
 	sats map[int32]*Sat
@@ -42,7 +43,7 @@ func NewActiveSats() *ActiveSats {
 	}
 }
 
-// Get one sat.
+// Get one sat, read thread safe.
 func (as *ActiveSats) Get(norad int32) (*Sat, bool) {
 	as.RLock()
 	defer as.RUnlock()
@@ -50,6 +51,7 @@ func (as *ActiveSats) Get(norad int32) (*Sat, bool) {
 	return sat, ok
 }
 
+// Set one sat, read thread safe.
 func (as *ActiveSats) Set(norad int32, sat *Sat) {
 	as.Lock()
 	defer as.Unlock()

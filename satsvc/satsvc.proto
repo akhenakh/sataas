@@ -53,6 +53,7 @@ message GenPassesRequest {
     google.protobuf.Timestamp start_time = 3;
     google.protobuf.Timestamp stop_time = 4;
     int32 step_seconds = 5;
+    double min_elevation = 6;
 }
 
 message Pass {

@@ -202,9 +202,9 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 		int(req.StepSeconds),
 	)
 
-	passes := make([]*satsvc.Pass, len(passesDetails))
+	var passes []*satsvc.Pass
 
-	for i, pd := range passesDetails {
+	for _, pd := range passesDetails {
 		aos, err := ptypes.TimestampProto(pd.AOS)
 		if !ok {
 			return nil, status.Error(codes.Internal, fmt.Sprintf("can't serialize aos time %v", err))
@@ -215,7 +215,11 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 			return nil, status.Error(codes.Internal, fmt.Sprintf("can't serialize los time %v", err))
 		}
 
-		passes[i] = &satsvc.Pass{
+		// filter out passes with low elevation
+		if req.MinElevation != 0.0 && pd.MaxElevation < req.MinElevation {
+			continue
+		}
+		passes = append(passes, &satsvc.Pass{
 			Aos:          aos,
 			Los:          los,
 			AosAzimuth:   pd.AOSAzimuth,
@@ -223,8 +227,7 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 			MaxElevation: pd.MaxElevation,
 			AosRangeRate: pd.AOSRangeRate,
 			LosRangeRate: pd.LOSRangeRate,
-		}
+		})
 	}
-
 	return &satsvc.Passes{Passes: passes}, nil
 }

@@ -25,6 +25,8 @@ var (
 
 	noradNumber = flag.Uint("noradNumber", 25544, "norad number sat to query")
 	stepsMs     = flag.Uint("stepsMs", 1000, "recompute position every stepsMs (in ms)")
+
+	minElevation = flag.Float64("minElevation", 0, "filter passes with max elevations lower than minElevation")
 )
 
 func main() {
@@ -82,9 +84,16 @@ func main() {
 		StartTime:        starttp,
 		StopTime:         stoptp,
 		StepSeconds:      30,
+		MinElevation:     *minElevation,
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	log.Printf("Passes to %s:\n%#v", stopt, passes.String())
+	log.Printf("Computed passes %d\n", len(passes.Passes))
+	for _, p := range passes.Passes {
+		log.Printf("Pass %s\n", p.String())
+	}
 
 	req := &satsvc.SatLocationFromObsRequest{
 		NoradNumbers:     []int32{int32(*noradNumber)},
