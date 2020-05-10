@@ -2,14 +2,15 @@ kind: pipeline
 name: default
 
 steps:
-  - name: test
+  - name: linter
+    image: golangci/golangci-lint:v1.26.0
+    commands:
+      - golangci-lint run -v
+
+  - name: testbuild
     image: golang:alpine
     commands:
       - apk add --no-cache musl-dev build-base git
       - go test ./...
       - make sataas
       - make satcli
-  - name: linter
-    image: golangci/golangci-lint
-    commands:
-      - golangci-lint run -v
