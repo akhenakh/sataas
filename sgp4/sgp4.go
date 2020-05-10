@@ -34,7 +34,7 @@ func (p *SGP4) Position(lt time.Time) (lat, lng, alt float64, err error) {
 
 func catch(err *error) {
 	if r := recover(); r != nil {
-		*err = fmt.Errorf("%v", r)
+		*err = fmt.Errorf("%v", r) // nolint:goerr113
 	}
 }
 
@@ -93,8 +93,14 @@ func timeFromJulian(julian float64) time.Time {
 }
 
 func (p *SGP4) GeneratePasses(lat, lng, alt float64, start, stop time.Time, step int) []PassDetails {
-	startdt := cppsgp4.NewDateTime(start.Year(), int(start.Month()), start.Day(), start.Hour(), start.Minute(), start.Second())
-	stopdt := cppsgp4.NewDateTime(stop.Year(), int(stop.Month()), stop.Day(), stop.Hour(), stop.Minute(), stop.Second())
+	startdt := cppsgp4.NewDateTime(
+		start.Year(), int(start.Month()), start.Day(),
+		start.Hour(), start.Minute(), start.Second())
+
+	stopdt := cppsgp4.NewDateTime(
+		stop.Year(), int(stop.Month()), stop.Day(),
+		stop.Hour(), stop.Minute(), stop.Second())
+
 	cdetails := cppsgp4.GeneratePassList(lat, lng, alt, p.csgp4, startdt, stopdt, step)
 	details := make([]PassDetails, cdetails.Capacity())
 

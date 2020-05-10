@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	log "github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/go-retryablehttp"
@@ -219,6 +219,7 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 		if req.MinElevation != 0.0 && pd.MaxElevation < req.MinElevation {
 			continue
 		}
+
 		passes = append(passes, &satsvc.Pass{
 			Aos:          aos,
 			Los:          los,

@@ -17,8 +17,17 @@ linters:
   disable:
     - wsl
     - gochecknoglobals
+    - gomnd
+    - funlen
+    - gocognit
+    - scopelint
+    - goerr113
   presets:
     - bugs
     - unused
     - complexity
     - style
+
+linters-settings:
+  errcheck:
+    exclude: .errcheck_excludes.txt
