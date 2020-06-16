@@ -57,15 +57,6 @@ func main() {
 	ctx, ccancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer ccancel()
 
-	loc, err := c.SatLocation(ctx, &satsvc.SatLocationRequest{
-		NoradNumber: int32(*noradNumber),
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("Location %+v", loc)
-
 	obsLoc := &satsvc.Location{
 		Latitude:  *lat,
 		Longitude: *lng,

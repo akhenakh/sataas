@@ -41,7 +41,13 @@ var (
 	tleURL = flag.String(
 		"tleURL",
 		"https://celestrak.com/NORAD/elements/active.txt",
-		"default URL to fetch")
+		"default URL to fetch TLEs")
+
+	cateoriesURL = flag.String(
+		"cateoriesURL",
+		"https://raw.githubusercontent.com/akhenakh/sataas/master/extract_tools/categories.json",
+		"default URL to fetch categories")
+
 	logLevel = flag.String("logLevel", "INFO", "DEBUG|INFO|WARN|ERROR")
 
 	grpcServer        *grpc.Server
@@ -111,7 +117,17 @@ func main() {
 	})
 
 	// our sataas service
-	s := sataas.New(ctx, logger, healthServer, *tleURL)
+	s := sataas.New(ctx, logger, healthServer, *tleURL, *cateoriesURL)
+
+	err := s.UpdateTLEs()
+	if err != nil {
+		level.Error(logger).Log("msg", "can't fetch TLEs", "error", err)
+	}
+
+	err = s.UpdateCategories()
+	if err != nil {
+		level.Error(logger).Log("msg", "can't fetch Categories", "error", err)
+	}
 
 	// gRPC Server
 	g.Go(func() error {
@@ -142,11 +158,6 @@ func main() {
 
 		return grpcServer.Serve(ln)
 	})
-
-	err := s.UpdateTLEs()
-	if err != nil {
-		level.Error(logger).Log("msg", "can't update TLEs", "error", err)
-	}
 
 	healthServer.SetServingStatus(fmt.Sprintf("grpc.health.v1.%s", appName), healthpb.HealthCheckResponse_SERVING)
 	level.Info(logger).Log("msg", "serving status to SERVING")

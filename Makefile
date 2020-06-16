@@ -9,9 +9,9 @@ DATE := $(shell date -u +%Y%m%d.%H%M%S)
 LDFLAGS = -trimpath -ldflags "-X=main.version=$(VERSION)-$(DATE)"
 CGO_ENABLED=1
 
-targets = sataas 
+targets = sataas satcli starlink
 
-.PHONY: all lint test clean swig sataas satcli docker-image
+.PHONY: all lint test clean swig sataas satcli starlink docker-image
 
 all: lint test $(targets)
 
@@ -26,6 +26,9 @@ sataas:
 
 satcli:
 	cd cmd/satcli && go build $(LDFLAGS)
+
+starlink:
+	cd cmd/starlink && go build $(LDFLAGS)
 
 swig:
 	cd cppsgp4 && swig -c++ -intgosize 64 -go SGP4.i
@@ -44,4 +47,5 @@ docker-image: sataas grpc_health_probe
 clean:
 	rm -f cmd/sataas/sataas
 	rm -f cmd/satcli/satcli
+	rm -f cmd/starlink/starlink
 	rm -r cmd/sataas/grpc_health_probe

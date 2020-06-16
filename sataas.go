@@ -2,6 +2,7 @@ package sataas
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-retryablehttp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health"
@@ -22,20 +24,24 @@ type Service struct {
 	logger log.Logger
 	Health *health.Server
 
-	tleURL string
-	sats   *ActiveSats
+	tleURL      string
+	categoryURL string
+	sats        *ActiveSats
+	categories  *ActiveCategories
 
 	gCtx context.Context
 }
 
 // New returns a new Sataas service manager.
-func New(ctx context.Context, logger log.Logger, health *health.Server, tleURL string) *Service {
+func New(ctx context.Context, logger log.Logger, health *health.Server, tleURL, categoryURL string) *Service {
 	return &Service{
-		logger: log.With(logger, "components", "service"),
-		Health: health,
-		tleURL: tleURL,
-		sats:   NewActiveSats(),
-		gCtx:   ctx,
+		logger:      log.With(logger, "components", "service"),
+		Health:      health,
+		tleURL:      tleURL,
+		categoryURL: categoryURL,
+		sats:        NewActiveSats(),
+		categories:  NewActiveCategories(),
+		gCtx:        ctx,
 	}
 }
 
@@ -68,6 +74,37 @@ func (s *Service) UpdateTLEs() error {
 	return nil
 }
 
+// UpdateCategories fetch categories and update them.
+func (s *Service) UpdateCategories() error {
+	resp, err := retryablehttp.Get(s.categoryURL)
+	if err != nil {
+		return fmt.Errorf("failed while fetching categories: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var categories []Category
+	if err := json.NewDecoder(resp.Body).Decode(&categories); err != nil {
+		return fmt.Errorf("failed unmarshaling categories: %w", err)
+	}
+
+	for _, cat := range categories {
+		var validSats []int32
+		for _, satid := range cat.Sats {
+			if _, ok := s.sats.sats[satid]; !ok {
+				level.Warn(s.logger).Log("msg", "missing sat from category", "category", cat.ID, "sat_id", satid)
+
+				continue
+			}
+			validSats = append(validSats, satid)
+		}
+		s.categories.Set(cat.ID, cat.Name, validSats)
+	}
+
+	level.Info(s.logger).Log("msg", "updated Categories", "count", len(categories))
+
+	return nil
+}
+
 // SatInfos gRPC exposed to query satellites infos.
 func (s *Service) SatInfos(ctx context.Context, req *satsvc.SatRequest) (*satsvc.SatInfosResponse, error) {
 	sat, ok := s.sats.Get(req.NoradNumber)
@@ -89,30 +126,68 @@ func (s *Service) SatInfos(ctx context.Context, req *satsvc.SatRequest) (*satsvc
 }
 
 // SatLocation gRPC exposed satellites position.
-func (s *Service) SatLocation(ctx context.Context, req *satsvc.SatLocationRequest) (*satsvc.Location, error) {
-	sat, ok := s.sats.Get(req.NoradNumber)
-	if !ok {
-		return nil, status.Error(codes.NotFound, "non existing norad id")
+func (s *Service) SatsLocations(req *satsvc.SatsLocationsRequest, stream satsvc.Prediction_SatsLocationsServer) error {
+	if len(req.NoradNumbers) == 0 && req.Category == 0 {
+		return status.Error(codes.InvalidArgument, "invalid request")
 	}
-	t := time.Now()
-	if req.Time != nil {
-		pt, err := ptypes.Timestamp(req.Time)
-		if err != nil {
-			return nil, err
+
+	if req.Category != 0 {
+		cat, ok := s.categories.categories[req.Category]
+		if !ok {
+			return status.Error(codes.NotFound, "invalid category")
 		}
-		t = pt
+		req.NoradNumbers = cat.Sats
 	}
 
-	lat, lng, alt, err := sat.Position(t)
-	if err != nil {
-		return nil, err
+	for _, satid := range req.NoradNumbers {
+		_, ok := s.sats.Get(satid)
+		if !ok {
+			return status.Error(codes.NotFound, fmt.Sprintf("non existing norad id %d", satid))
+		}
 	}
 
-	return &satsvc.Location{
-		Latitude:  lat,
-		Longitude: lng,
-		Altitude:  alt,
-	}, nil
+	ticker := time.NewTicker(1 * time.Second)
+
+	resp := &satsvc.SatsLocationsResponse{
+		SatLocations: make([]*satsvc.SatLocation, len(req.NoradNumbers)),
+	}
+
+	for {
+		select {
+		case <-s.gCtx.Done():
+			ticker.Stop()
+			return nil
+		case <-stream.Context().Done():
+			ticker.Stop()
+			return nil
+		case <-ticker.C:
+
+			for i, nid := range req.NoradNumbers {
+				sat, ok := s.sats.Get(nid)
+				if !ok {
+					return status.Error(codes.NotFound, fmt.Sprintf("non existing norad id %d", nid))
+				}
+				t := time.Now()
+				lat, lng, alt, err := sat.Position(t)
+				if err != nil {
+					return err
+				}
+				resp.SatLocations[i] = &satsvc.SatLocation{
+					NoradNumber: nid,
+					Latitude:    lat,
+					Longitude:   lng,
+					Altitude:    alt,
+				}
+			}
+
+			if err := stream.Send(resp); err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return err
+			}
+		}
+	}
 }
 
 // SatLocationFromObs gRPC exposed stream Live Sat observation.
@@ -136,7 +211,7 @@ func (s *Service) SatLocationFromObs(req *satsvc.SatLocationFromObsRequest,
 			for _, nid := range req.NoradNumbers {
 				sat, ok := s.sats.Get(nid)
 				if !ok {
-					return status.Error(codes.NotFound, "non existing norad id")
+					return status.Error(codes.NotFound, fmt.Sprintf("non existing norad id %d", nid))
 				}
 
 				sobs := sat.SGP4.ObservationFromLocation(
@@ -231,4 +306,9 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 		})
 	}
 	return &satsvc.Passes{Passes: passes}, nil
+}
+
+// Categories gRPC exposed to get category list
+func (s *Service) Categories(ctx context.Context, empty *empty.Empty) (*satsvc.CategoriesResponse, error) {
+	return s.categories.grpcCategories, nil
 }

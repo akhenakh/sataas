@@ -6,6 +6,7 @@ package satsvc
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import empty "github.com/golang/protobuf/ptypes/empty"
 import timestamp "github.com/golang/protobuf/ptypes/timestamp"
 
 import (
@@ -35,7 +36,7 @@ func (m *SatRequest) Reset()         { *m = SatRequest{} }
 func (m *SatRequest) String() string { return proto.CompactTextString(m) }
 func (*SatRequest) ProtoMessage()    {}
 func (*SatRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{0}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{0}
 }
 func (m *SatRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SatRequest.Unmarshal(m, b)
@@ -77,7 +78,7 @@ func (m *SatInfosResponse) Reset()         { *m = SatInfosResponse{} }
 func (m *SatInfosResponse) String() string { return proto.CompactTextString(m) }
 func (*SatInfosResponse) ProtoMessage()    {}
 func (*SatInfosResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{1}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{1}
 }
 func (m *SatInfosResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SatInfosResponse.Unmarshal(m, b)
@@ -145,7 +146,7 @@ func (m *Location) Reset()         { *m = Location{} }
 func (m *Location) String() string { return proto.CompactTextString(m) }
 func (*Location) ProtoMessage()    {}
 func (*Location) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{2}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{2}
 }
 func (m *Location) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Location.Unmarshal(m, b)
@@ -186,6 +187,198 @@ func (m *Location) GetAltitude() float64 {
 	return 0
 }
 
+type SatLocation struct {
+	NoradNumber          int32    `protobuf:"varint,1,opt,name=norad_number,json=noradNumber,proto3" json:"norad_number,omitempty"`
+	Latitude             float64  `protobuf:"fixed64,2,opt,name=latitude,proto3" json:"latitude,omitempty"`
+	Longitude            float64  `protobuf:"fixed64,3,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	Altitude             float64  `protobuf:"fixed64,4,opt,name=altitude,proto3" json:"altitude,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *SatLocation) Reset()         { *m = SatLocation{} }
+func (m *SatLocation) String() string { return proto.CompactTextString(m) }
+func (*SatLocation) ProtoMessage()    {}
+func (*SatLocation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{3}
+}
+func (m *SatLocation) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SatLocation.Unmarshal(m, b)
+}
+func (m *SatLocation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SatLocation.Marshal(b, m, deterministic)
+}
+func (dst *SatLocation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SatLocation.Merge(dst, src)
+}
+func (m *SatLocation) XXX_Size() int {
+	return xxx_messageInfo_SatLocation.Size(m)
+}
+func (m *SatLocation) XXX_DiscardUnknown() {
+	xxx_messageInfo_SatLocation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SatLocation proto.InternalMessageInfo
+
+func (m *SatLocation) GetNoradNumber() int32 {
+	if m != nil {
+		return m.NoradNumber
+	}
+	return 0
+}
+
+func (m *SatLocation) GetLatitude() float64 {
+	if m != nil {
+		return m.Latitude
+	}
+	return 0
+}
+
+func (m *SatLocation) GetLongitude() float64 {
+	if m != nil {
+		return m.Longitude
+	}
+	return 0
+}
+
+func (m *SatLocation) GetAltitude() float64 {
+	if m != nil {
+		return m.Altitude
+	}
+	return 0
+}
+
+type Category struct {
+	Id                   int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Sats                 []int32  `protobuf:"varint,3,rep,packed,name=sats,proto3" json:"sats,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Category) Reset()         { *m = Category{} }
+func (m *Category) String() string { return proto.CompactTextString(m) }
+func (*Category) ProtoMessage()    {}
+func (*Category) Descriptor() ([]byte, []int) {
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{4}
+}
+func (m *Category) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Category.Unmarshal(m, b)
+}
+func (m *Category) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Category.Marshal(b, m, deterministic)
+}
+func (dst *Category) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Category.Merge(dst, src)
+}
+func (m *Category) XXX_Size() int {
+	return xxx_messageInfo_Category.Size(m)
+}
+func (m *Category) XXX_DiscardUnknown() {
+	xxx_messageInfo_Category.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Category proto.InternalMessageInfo
+
+func (m *Category) GetId() int32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *Category) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *Category) GetSats() []int32 {
+	if m != nil {
+		return m.Sats
+	}
+	return nil
+}
+
+type SatsLocationsResponse struct {
+	SatLocations         []*SatLocation `protobuf:"bytes,1,rep,name=sat_locations,json=satLocations,proto3" json:"sat_locations,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
+}
+
+func (m *SatsLocationsResponse) Reset()         { *m = SatsLocationsResponse{} }
+func (m *SatsLocationsResponse) String() string { return proto.CompactTextString(m) }
+func (*SatsLocationsResponse) ProtoMessage()    {}
+func (*SatsLocationsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{5}
+}
+func (m *SatsLocationsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SatsLocationsResponse.Unmarshal(m, b)
+}
+func (m *SatsLocationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SatsLocationsResponse.Marshal(b, m, deterministic)
+}
+func (dst *SatsLocationsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SatsLocationsResponse.Merge(dst, src)
+}
+func (m *SatsLocationsResponse) XXX_Size() int {
+	return xxx_messageInfo_SatsLocationsResponse.Size(m)
+}
+func (m *SatsLocationsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SatsLocationsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SatsLocationsResponse proto.InternalMessageInfo
+
+func (m *SatsLocationsResponse) GetSatLocations() []*SatLocation {
+	if m != nil {
+		return m.SatLocations
+	}
+	return nil
+}
+
+type CategoriesResponse struct {
+	Categories           []*Category `protobuf:"bytes,1,rep,name=categories,proto3" json:"categories,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
+}
+
+func (m *CategoriesResponse) Reset()         { *m = CategoriesResponse{} }
+func (m *CategoriesResponse) String() string { return proto.CompactTextString(m) }
+func (*CategoriesResponse) ProtoMessage()    {}
+func (*CategoriesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{6}
+}
+func (m *CategoriesResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CategoriesResponse.Unmarshal(m, b)
+}
+func (m *CategoriesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CategoriesResponse.Marshal(b, m, deterministic)
+}
+func (dst *CategoriesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CategoriesResponse.Merge(dst, src)
+}
+func (m *CategoriesResponse) XXX_Size() int {
+	return xxx_messageInfo_CategoriesResponse.Size(m)
+}
+func (m *CategoriesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CategoriesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CategoriesResponse proto.InternalMessageInfo
+
+func (m *CategoriesResponse) GetCategories() []*Category {
+	if m != nil {
+		return m.Categories
+	}
+	return nil
+}
+
 type Observation struct {
 	NoradNumber          int32     `protobuf:"varint,1,opt,name=norad_number,json=noradNumber,proto3" json:"norad_number,omitempty"`
 	SatLocation          *Location `protobuf:"bytes,2,opt,name=sat_location,json=satLocation,proto3" json:"sat_location,omitempty"`
@@ -202,7 +395,7 @@ func (m *Observation) Reset()         { *m = Observation{} }
 func (m *Observation) String() string { return proto.CompactTextString(m) }
 func (*Observation) ProtoMessage()    {}
 func (*Observation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{3}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{7}
 }
 func (m *Observation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Observation.Unmarshal(m, b)
@@ -264,50 +457,50 @@ func (m *Observation) GetRangeRate() float64 {
 	return 0
 }
 
-type SatLocationRequest struct {
-	NoradNumber          int32                `protobuf:"varint,1,opt,name=norad_number,json=noradNumber,proto3" json:"norad_number,omitempty"`
-	Time                 *timestamp.Timestamp `protobuf:"bytes,2,opt,name=time,proto3" json:"time,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
+type SatsLocationsRequest struct {
+	NoradNumbers         []int32  `protobuf:"varint,1,rep,packed,name=norad_numbers,json=noradNumbers,proto3" json:"norad_numbers,omitempty"`
+	Category             int32    `protobuf:"varint,2,opt,name=category,proto3" json:"category,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SatLocationRequest) Reset()         { *m = SatLocationRequest{} }
-func (m *SatLocationRequest) String() string { return proto.CompactTextString(m) }
-func (*SatLocationRequest) ProtoMessage()    {}
-func (*SatLocationRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{4}
+func (m *SatsLocationsRequest) Reset()         { *m = SatsLocationsRequest{} }
+func (m *SatsLocationsRequest) String() string { return proto.CompactTextString(m) }
+func (*SatsLocationsRequest) ProtoMessage()    {}
+func (*SatsLocationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{8}
 }
-func (m *SatLocationRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SatLocationRequest.Unmarshal(m, b)
+func (m *SatsLocationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SatsLocationsRequest.Unmarshal(m, b)
 }
-func (m *SatLocationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SatLocationRequest.Marshal(b, m, deterministic)
+func (m *SatsLocationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SatsLocationsRequest.Marshal(b, m, deterministic)
 }
-func (dst *SatLocationRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SatLocationRequest.Merge(dst, src)
+func (dst *SatsLocationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SatsLocationsRequest.Merge(dst, src)
 }
-func (m *SatLocationRequest) XXX_Size() int {
-	return xxx_messageInfo_SatLocationRequest.Size(m)
+func (m *SatsLocationsRequest) XXX_Size() int {
+	return xxx_messageInfo_SatsLocationsRequest.Size(m)
 }
-func (m *SatLocationRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_SatLocationRequest.DiscardUnknown(m)
+func (m *SatsLocationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SatsLocationsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SatLocationRequest proto.InternalMessageInfo
+var xxx_messageInfo_SatsLocationsRequest proto.InternalMessageInfo
 
-func (m *SatLocationRequest) GetNoradNumber() int32 {
+func (m *SatsLocationsRequest) GetNoradNumbers() []int32 {
 	if m != nil {
-		return m.NoradNumber
-	}
-	return 0
-}
-
-func (m *SatLocationRequest) GetTime() *timestamp.Timestamp {
-	if m != nil {
-		return m.Time
+		return m.NoradNumbers
 	}
 	return nil
+}
+
+func (m *SatsLocationsRequest) GetCategory() int32 {
+	if m != nil {
+		return m.Category
+	}
+	return 0
 }
 
 type SatLocationFromObsRequest struct {
@@ -323,7 +516,7 @@ func (m *SatLocationFromObsRequest) Reset()         { *m = SatLocationFromObsReq
 func (m *SatLocationFromObsRequest) String() string { return proto.CompactTextString(m) }
 func (*SatLocationFromObsRequest) ProtoMessage()    {}
 func (*SatLocationFromObsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{5}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{9}
 }
 func (m *SatLocationFromObsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SatLocationFromObsRequest.Unmarshal(m, b)
@@ -380,7 +573,7 @@ func (m *GenPassesRequest) Reset()         { *m = GenPassesRequest{} }
 func (m *GenPassesRequest) String() string { return proto.CompactTextString(m) }
 func (*GenPassesRequest) ProtoMessage()    {}
 func (*GenPassesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{6}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{10}
 }
 func (m *GenPassesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GenPassesRequest.Unmarshal(m, b)
@@ -459,7 +652,7 @@ func (m *Pass) Reset()         { *m = Pass{} }
 func (m *Pass) String() string { return proto.CompactTextString(m) }
 func (*Pass) ProtoMessage()    {}
 func (*Pass) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{7}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{11}
 }
 func (m *Pass) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Pass.Unmarshal(m, b)
@@ -539,7 +732,7 @@ func (m *Passes) Reset()         { *m = Passes{} }
 func (m *Passes) String() string { return proto.CompactTextString(m) }
 func (*Passes) ProtoMessage()    {}
 func (*Passes) Descriptor() ([]byte, []int) {
-	return fileDescriptor_satsvc_2e6901008f998543, []int{8}
+	return fileDescriptor_satsvc_8f86fc42ef2483de, []int{12}
 }
 func (m *Passes) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Passes.Unmarshal(m, b)
@@ -570,8 +763,12 @@ func init() {
 	proto.RegisterType((*SatRequest)(nil), "SatRequest")
 	proto.RegisterType((*SatInfosResponse)(nil), "SatInfosResponse")
 	proto.RegisterType((*Location)(nil), "Location")
+	proto.RegisterType((*SatLocation)(nil), "SatLocation")
+	proto.RegisterType((*Category)(nil), "Category")
+	proto.RegisterType((*SatsLocationsResponse)(nil), "SatsLocationsResponse")
+	proto.RegisterType((*CategoriesResponse)(nil), "CategoriesResponse")
 	proto.RegisterType((*Observation)(nil), "Observation")
-	proto.RegisterType((*SatLocationRequest)(nil), "SatLocationRequest")
+	proto.RegisterType((*SatsLocationsRequest)(nil), "SatsLocationsRequest")
 	proto.RegisterType((*SatLocationFromObsRequest)(nil), "SatLocationFromObsRequest")
 	proto.RegisterType((*GenPassesRequest)(nil), "GenPassesRequest")
 	proto.RegisterType((*Pass)(nil), "Pass")
@@ -591,9 +788,10 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PredictionClient interface {
 	SatInfos(ctx context.Context, in *SatRequest, opts ...grpc.CallOption) (*SatInfosResponse, error)
-	SatLocation(ctx context.Context, in *SatLocationRequest, opts ...grpc.CallOption) (*Location, error)
+	SatsLocations(ctx context.Context, in *SatsLocationsRequest, opts ...grpc.CallOption) (Prediction_SatsLocationsClient, error)
 	SatLocationFromObs(ctx context.Context, in *SatLocationFromObsRequest, opts ...grpc.CallOption) (Prediction_SatLocationFromObsClient, error)
 	GenPasses(ctx context.Context, in *GenPassesRequest, opts ...grpc.CallOption) (*Passes, error)
+	Categories(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*CategoriesResponse, error)
 }
 
 type predictionClient struct {
@@ -613,17 +811,40 @@ func (c *predictionClient) SatInfos(ctx context.Context, in *SatRequest, opts ..
 	return out, nil
 }
 
-func (c *predictionClient) SatLocation(ctx context.Context, in *SatLocationRequest, opts ...grpc.CallOption) (*Location, error) {
-	out := new(Location)
-	err := c.cc.Invoke(ctx, "/Prediction/SatLocation", in, out, opts...)
+func (c *predictionClient) SatsLocations(ctx context.Context, in *SatsLocationsRequest, opts ...grpc.CallOption) (Prediction_SatsLocationsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Prediction_serviceDesc.Streams[0], "/Prediction/SatsLocations", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &predictionSatsLocationsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Prediction_SatsLocationsClient interface {
+	Recv() (*SatsLocationsResponse, error)
+	grpc.ClientStream
+}
+
+type predictionSatsLocationsClient struct {
+	grpc.ClientStream
+}
+
+func (x *predictionSatsLocationsClient) Recv() (*SatsLocationsResponse, error) {
+	m := new(SatsLocationsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *predictionClient) SatLocationFromObs(ctx context.Context, in *SatLocationFromObsRequest, opts ...grpc.CallOption) (Prediction_SatLocationFromObsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Prediction_serviceDesc.Streams[0], "/Prediction/SatLocationFromObs", opts...)
+	stream, err := c.cc.NewStream(ctx, &_Prediction_serviceDesc.Streams[1], "/Prediction/SatLocationFromObs", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -663,12 +884,22 @@ func (c *predictionClient) GenPasses(ctx context.Context, in *GenPassesRequest, 
 	return out, nil
 }
 
+func (c *predictionClient) Categories(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*CategoriesResponse, error) {
+	out := new(CategoriesResponse)
+	err := c.cc.Invoke(ctx, "/Prediction/Categories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PredictionServer is the server API for Prediction service.
 type PredictionServer interface {
 	SatInfos(context.Context, *SatRequest) (*SatInfosResponse, error)
-	SatLocation(context.Context, *SatLocationRequest) (*Location, error)
+	SatsLocations(*SatsLocationsRequest, Prediction_SatsLocationsServer) error
 	SatLocationFromObs(*SatLocationFromObsRequest, Prediction_SatLocationFromObsServer) error
 	GenPasses(context.Context, *GenPassesRequest) (*Passes, error)
+	Categories(context.Context, *empty.Empty) (*CategoriesResponse, error)
 }
 
 func RegisterPredictionServer(s *grpc.Server, srv PredictionServer) {
@@ -693,22 +924,25 @@ func _Prediction_SatInfos_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Prediction_SatLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SatLocationRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _Prediction_SatsLocations_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SatsLocationsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(PredictionServer).SatLocation(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Prediction/SatLocation",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PredictionServer).SatLocation(ctx, req.(*SatLocationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(PredictionServer).SatsLocations(m, &predictionSatsLocationsServer{stream})
+}
+
+type Prediction_SatsLocationsServer interface {
+	Send(*SatsLocationsResponse) error
+	grpc.ServerStream
+}
+
+type predictionSatsLocationsServer struct {
+	grpc.ServerStream
+}
+
+func (x *predictionSatsLocationsServer) Send(m *SatsLocationsResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _Prediction_SatLocationFromObs_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -750,6 +984,24 @@ func _Prediction_GenPasses_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Prediction_Categories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PredictionServer).Categories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Prediction/Categories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PredictionServer).Categories(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Prediction_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "Prediction",
 	HandlerType: (*PredictionServer)(nil),
@@ -759,15 +1011,20 @@ var _Prediction_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Prediction_SatInfos_Handler,
 		},
 		{
-			MethodName: "SatLocation",
-			Handler:    _Prediction_SatLocation_Handler,
-		},
-		{
 			MethodName: "GenPasses",
 			Handler:    _Prediction_GenPasses_Handler,
 		},
+		{
+			MethodName: "Categories",
+			Handler:    _Prediction_Categories_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SatsLocations",
+			Handler:       _Prediction_SatsLocations_Handler,
+			ServerStreams: true,
+		},
 		{
 			StreamName:    "SatLocationFromObs",
 			Handler:       _Prediction_SatLocationFromObs_Handler,
@@ -777,52 +1034,60 @@ var _Prediction_serviceDesc = grpc.ServiceDesc{
 	Metadata: "satsvc.proto",
 }
 
-func init() { proto.RegisterFile("satsvc.proto", fileDescriptor_satsvc_2e6901008f998543) }
+func init() { proto.RegisterFile("satsvc.proto", fileDescriptor_satsvc_8f86fc42ef2483de) }
 
-var fileDescriptor_satsvc_2e6901008f998543 = []byte{
-	// 693 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xdd, 0x6e, 0xd3, 0x4a,
-	0x10, 0x8e, 0x93, 0x38, 0x3f, 0xe3, 0x9c, 0xa3, 0x76, 0xcf, 0xb9, 0x70, 0x2d, 0xaa, 0xa6, 0x06,
-	0x89, 0x20, 0x55, 0x1b, 0x08, 0x12, 0x08, 0x71, 0x05, 0x12, 0x20, 0x24, 0xa0, 0xd5, 0x86, 0x7b,
-	0xb3, 0x49, 0xb6, 0x21, 0x92, 0xed, 0x35, 0x9e, 0x4d, 0x55, 0xf1, 0x1a, 0x88, 0x87, 0xe0, 0x86,
-	0x17, 0xe1, 0x0d, 0x78, 0x1a, 0xb4, 0xbb, 0x76, 0xec, 0xb6, 0xa2, 0x0d, 0xdc, 0xed, 0x7c, 0xfb,
-	0x8d, 0x66, 0xe6, 0xdb, 0xf9, 0x16, 0x06, 0xc8, 0x15, 0x9e, 0xcd, 0x69, 0x96, 0x4b, 0x25, 0x83,
-	0x83, 0xa5, 0x94, 0xcb, 0x58, 0x8c, 0x4d, 0x34, 0x5b, 0x9f, 0x8e, 0xd5, 0x2a, 0x11, 0xa8, 0x78,
-	0x92, 0x59, 0x42, 0x38, 0x06, 0x98, 0x72, 0xc5, 0xc4, 0xa7, 0xb5, 0x40, 0x45, 0x0e, 0x61, 0x90,
-	0xca, 0x9c, 0x2f, 0xa2, 0x74, 0x9d, 0xcc, 0x44, 0xee, 0x3b, 0x43, 0x67, 0xe4, 0x32, 0xcf, 0x60,
-	0xef, 0x0c, 0x14, 0x7e, 0x77, 0x60, 0x67, 0xca, 0xd5, 0xeb, 0xf4, 0x54, 0x22, 0x13, 0x98, 0xc9,
-	0x14, 0xc5, 0x16, 0x79, 0x84, 0x40, 0x3b, 0xe5, 0x89, 0xf0, 0x9b, 0x43, 0x67, 0xd4, 0x67, 0xe6,
-	0xac, 0x31, 0x15, 0x8b, 0x07, 0x7e, 0xcb, 0x62, 0xfa, 0x5c, 0x60, 0x13, 0xbf, 0xbd, 0xc1, 0x26,
-	0xe4, 0x29, 0x78, 0xeb, 0x6c, 0xc1, 0x95, 0x88, 0x74, 0xfb, 0xbe, 0x3b, 0x74, 0x46, 0xde, 0x24,
-	0xa0, 0x76, 0x36, 0x5a, 0xce, 0x46, 0xdf, 0x97, 0xb3, 0x31, 0xb0, 0x74, 0x0d, 0x84, 0x1f, 0xa0,
-	0xf7, 0x46, 0xce, 0xb9, 0x5a, 0xc9, 0x94, 0x04, 0xd0, 0x8b, 0xb9, 0x5a, 0xa9, 0xf5, 0x42, 0x98,
-	0x1e, 0x1d, 0xb6, 0x89, 0xc9, 0x2d, 0xe8, 0xc7, 0x32, 0x5d, 0xda, 0xcb, 0xa6, 0xb9, 0xac, 0x00,
-	0x9d, 0xc9, 0xe3, 0x22, 0xb3, 0x65, 0x33, 0xcb, 0x38, 0xfc, 0xe1, 0x80, 0x77, 0x3c, 0x43, 0x91,
-	0x9f, 0xd9, 0x2a, 0x5b, 0xa8, 0x71, 0x64, 0xde, 0x29, 0x8a, 0x8b, 0xc6, 0x4c, 0x3d, 0x6f, 0xd2,
-	0xa7, 0x65, 0xa7, 0xcc, 0x43, 0xae, 0x36, 0x6d, 0xfb, 0xd0, 0xe5, 0x9f, 0x57, 0xc9, 0x5a, 0x7d,
-	0x2c, 0x6a, 0x97, 0xa1, 0x6e, 0x5a, 0xc4, 0xc2, 0xd6, 0x35, 0x92, 0x39, 0xac, 0x02, 0xc8, 0xff,
-	0xe0, 0xe6, 0x3c, 0x5d, 0x5a, 0xc5, 0x1c, 0x66, 0x03, 0xb2, 0x0f, 0x60, 0x0e, 0x51, 0xce, 0x95,
-	0xf0, 0x3b, 0x36, 0xc9, 0x20, 0x8c, 0x2b, 0x11, 0x2e, 0x81, 0x4c, 0xab, 0xda, 0xdb, 0x6f, 0x06,
-	0xa1, 0xd0, 0x36, 0xcf, 0xd3, 0xbc, 0xf1, 0x79, 0x0c, 0x2f, 0xfc, 0xe2, 0xc0, 0x5e, 0xad, 0xd2,
-	0xcb, 0x5c, 0x26, 0xc7, 0x33, 0x2c, 0x0b, 0xde, 0x86, 0x7f, 0xea, 0x05, 0xd1, 0x77, 0x86, 0xad,
-	0x91, 0xcb, 0x06, 0xb5, 0x8a, 0x48, 0x1e, 0xc1, 0xae, 0x34, 0xc2, 0x8b, 0xfc, 0x1a, 0x2d, 0x77,
-	0x4a, 0xce, 0x46, 0xd0, 0x3d, 0xe8, 0xa1, 0x12, 0x19, 0x46, 0x09, 0x1a, 0x45, 0x5d, 0xd6, 0x35,
-	0xf1, 0x5b, 0x0c, 0xbf, 0x35, 0x61, 0xe7, 0x95, 0x48, 0x4f, 0x38, 0xa2, 0xc0, 0x3f, 0x98, 0xfe,
-	0x6f, 0x5b, 0x79, 0x02, 0x80, 0x8a, 0xe7, 0xca, 0xae, 0x76, 0xeb, 0x46, 0xed, 0xfa, 0x86, 0xad,
-	0x63, 0xf2, 0x18, 0xfa, 0xa8, 0x64, 0x66, 0x33, 0xdb, 0x37, 0x66, 0xf6, 0x34, 0xd9, 0x24, 0x1e,
-	0xc2, 0x40, 0x8f, 0x1b, 0xa1, 0x98, 0xcb, 0x74, 0x81, 0x66, 0x3d, 0x5c, 0xe6, 0x69, 0x6c, 0x6a,
-	0x21, 0x2d, 0x7f, 0xb2, 0x4a, 0xa3, 0x6a, 0xb9, 0xec, 0x9e, 0x0c, 0x92, 0x55, 0xfa, 0xa2, 0xc4,
-	0xc2, 0xaf, 0x4d, 0x68, 0x6b, 0xa1, 0xc8, 0x11, 0xb4, 0xb8, 0x44, 0x23, 0xcb, 0xf5, 0x3d, 0x68,
-	0x9a, 0x66, 0xc7, 0x12, 0xb7, 0xd8, 0x13, 0x4d, 0x23, 0x07, 0xe0, 0x71, 0x89, 0xd1, 0x45, 0x03,
-	0x00, 0x97, 0xf8, 0xac, 0xf0, 0xc0, 0x01, 0x78, 0x71, 0x8d, 0x60, 0x5d, 0x00, 0x71, 0x45, 0xd0,
-	0xb3, 0xf0, 0xf3, 0xda, 0x2c, 0x6e, 0x31, 0x0b, 0x3f, 0xdf, 0xcc, 0x42, 0xee, 0xc0, 0xbf, 0xba,
-	0xcc, 0x15, 0x67, 0x0c, 0xb8, 0x44, 0x56, 0x9a, 0x43, 0xb3, 0xe2, 0x8b, 0xac, 0xae, 0x65, 0xc5,
-	0x35, 0x56, 0x78, 0x17, 0x3a, 0x76, 0x7f, 0xc8, 0x3e, 0x74, 0x32, 0x73, 0x32, 0xeb, 0xeb, 0x4d,
-	0x5c, 0xaa, 0x2f, 0x58, 0x01, 0x4e, 0x7e, 0x3a, 0x00, 0x27, 0xb9, 0x58, 0xac, 0xe6, 0xa6, 0x87,
-	0x23, 0xe8, 0x95, 0x5f, 0x2b, 0xf1, 0x68, 0xf5, 0x2f, 0x07, 0xbb, 0xf4, 0xf2, 0x97, 0x1b, 0x36,
-	0xc8, 0x18, 0xbc, 0x9a, 0x7d, 0xc8, 0x7f, 0xf4, 0xaa, 0x6d, 0x83, 0x6a, 0xf5, 0xc2, 0x06, 0x79,
-	0x7e, 0xc1, 0xd9, 0x85, 0xdf, 0x48, 0x40, 0x7f, 0x6b, 0xc2, 0x60, 0x40, 0x6b, 0xff, 0x5a, 0xd8,
-	0xb8, 0xef, 0x90, 0x7b, 0xd0, 0xdf, 0xb8, 0x83, 0xec, 0xd2, 0xcb, 0x4e, 0x09, 0xba, 0xd4, 0xc6,
-	0x61, 0x63, 0xd6, 0x31, 0x2f, 0xfa, 0xf0, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff, 0xaf, 0xf8, 0x99,
-	0x69, 0x92, 0x06, 0x00, 0x00,
+var fileDescriptor_satsvc_8f86fc42ef2483de = []byte{
+	// 827 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x55, 0xef, 0x8e, 0x1b, 0x35,
+	0x10, 0xbf, 0xdd, 0xcd, 0x5e, 0x92, 0xd9, 0xbd, 0xea, 0xce, 0xb4, 0xd5, 0x76, 0xa1, 0xba, 0xd4,
+	0x20, 0x91, 0x4a, 0x27, 0x1f, 0x0d, 0x12, 0x08, 0xf5, 0x03, 0xe2, 0x50, 0x41, 0x20, 0xa0, 0x95,
+	0x83, 0xc4, 0xc7, 0xc5, 0x49, 0xdc, 0xb0, 0xd2, 0xee, 0x7a, 0x59, 0x3b, 0x55, 0x8f, 0x07, 0xe0,
+	0x05, 0x10, 0x0f, 0x01, 0x1f, 0x78, 0x11, 0x5e, 0x0a, 0xd9, 0xde, 0x7f, 0x97, 0xb4, 0x69, 0xe8,
+	0x37, 0xcf, 0xf8, 0x37, 0xf6, 0xfc, 0x7e, 0x9e, 0x19, 0x43, 0x28, 0x99, 0x92, 0x2f, 0x96, 0xa4,
+	0xac, 0x84, 0x12, 0xf1, 0xf9, 0x5a, 0x88, 0x75, 0xc6, 0x2f, 0x8d, 0xb5, 0xd8, 0x3c, 0xbf, 0x54,
+	0x69, 0xce, 0xa5, 0x62, 0x79, 0x59, 0x03, 0xde, 0xdd, 0x06, 0xf0, 0xbc, 0x54, 0xd7, 0x76, 0x13,
+	0x5f, 0x02, 0xcc, 0x99, 0xa2, 0xfc, 0xd7, 0x0d, 0x97, 0x0a, 0x3d, 0x80, 0xb0, 0x10, 0x15, 0x5b,
+	0x25, 0xc5, 0x26, 0x5f, 0xf0, 0x2a, 0x72, 0x26, 0xce, 0xd4, 0xa7, 0x81, 0xf1, 0xfd, 0x60, 0x5c,
+	0xf8, 0x1f, 0x07, 0x4e, 0xe7, 0x4c, 0x7d, 0x53, 0x3c, 0x17, 0x92, 0x72, 0x59, 0x8a, 0x42, 0xf2,
+	0x03, 0xe2, 0x10, 0x82, 0x41, 0xc1, 0x72, 0x1e, 0xb9, 0x13, 0x67, 0x3a, 0xa6, 0x66, 0xad, 0x7d,
+	0x2a, 0xe3, 0x8f, 0x22, 0xcf, 0xfa, 0xf4, 0xba, 0xf6, 0xcd, 0xa2, 0x41, 0xeb, 0x9b, 0xa1, 0xc7,
+	0x10, 0x6c, 0xca, 0x15, 0x53, 0x3c, 0xd1, 0xdc, 0x22, 0x7f, 0xe2, 0x4c, 0x83, 0x59, 0x4c, 0x2c,
+	0x2f, 0xd2, 0xf0, 0x22, 0x3f, 0x36, 0xc4, 0x29, 0x58, 0xb8, 0x76, 0xe0, 0x9f, 0x61, 0xf4, 0x9d,
+	0x58, 0x32, 0x95, 0x8a, 0x02, 0xc5, 0x30, 0xca, 0x98, 0x4a, 0xd5, 0x66, 0xc5, 0x4d, 0x8e, 0x0e,
+	0x6d, 0x6d, 0xf4, 0x1e, 0x8c, 0x33, 0x51, 0xac, 0xed, 0xa6, 0x6b, 0x36, 0x3b, 0x87, 0x8e, 0x64,
+	0x59, 0x1d, 0xe9, 0xd9, 0xc8, 0xc6, 0xc6, 0xbf, 0x3b, 0x10, 0xcc, 0x99, 0x6a, 0x6f, 0x39, 0x40,
+	0x8d, 0x7e, 0x22, 0xee, 0xbe, 0x44, 0xbc, 0x7d, 0x89, 0x0c, 0xb6, 0x12, 0xb9, 0x82, 0xd1, 0x97,
+	0x4c, 0xf1, 0xb5, 0xa8, 0xae, 0xd1, 0x2d, 0x70, 0xd3, 0x55, 0x7d, 0xb5, 0x9b, 0xae, 0x5e, 0xa7,
+	0xbf, 0x2e, 0xa5, 0xc8, 0x9b, 0x78, 0x53, 0x9f, 0x9a, 0x35, 0xfe, 0x16, 0xee, 0xcc, 0x99, 0x92,
+	0x0d, 0x99, 0xee, 0x8d, 0x1f, 0xc1, 0x89, 0x64, 0x2a, 0xc9, 0x9a, 0x8d, 0xc8, 0x99, 0x78, 0xd3,
+	0x60, 0x16, 0x92, 0x1e, 0x75, 0xaa, 0x4b, 0xb3, 0x0d, 0xc5, 0x9f, 0x03, 0xaa, 0xf3, 0x49, 0x79,
+	0x77, 0xd0, 0x43, 0x80, 0x65, 0xeb, 0xad, 0x4f, 0x19, 0x93, 0x26, 0x71, 0xda, 0xdb, 0xc4, 0xff,
+	0x3a, 0x10, 0x3c, 0x5d, 0x48, 0x5e, 0xbd, 0x38, 0x58, 0xd9, 0x0b, 0xd3, 0x1e, 0x6d, 0x9a, 0x86,
+	0xaf, 0x3e, 0xbf, 0x4d, 0x31, 0xe8, 0xa5, 0x88, 0x22, 0x18, 0xb2, 0xdf, 0xd2, 0x7c, 0xa3, 0x7e,
+	0xa9, 0x95, 0x6e, 0x4c, 0xfd, 0x0a, 0x3c, 0xe3, 0xf6, 0xde, 0x5a, 0xe8, 0xce, 0x81, 0x6e, 0x83,
+	0x5f, 0xb1, 0x62, 0x6d, 0x6b, 0xd1, 0xa1, 0xd6, 0x40, 0xf7, 0x01, 0xcc, 0x22, 0xa9, 0x98, 0xe2,
+	0xd1, 0xb1, 0x0d, 0x32, 0x1e, 0xca, 0x14, 0xc7, 0x3f, 0xc1, 0xed, 0x2d, 0x69, 0x6d, 0xd7, 0xbd,
+	0x0f, 0x27, 0x7d, 0x56, 0x56, 0x13, 0x9f, 0x86, 0x3d, 0x5a, 0x52, 0xbf, 0x7b, 0x2d, 0xcc, 0xb5,
+	0xe1, 0xe4, 0xd3, 0xd6, 0xc6, 0x7f, 0x38, 0x70, 0xaf, 0xf7, 0x0a, 0x5f, 0x55, 0x22, 0x7f, 0xba,
+	0xf8, 0x7f, 0xc7, 0x7f, 0x02, 0x67, 0xc2, 0x08, 0xcd, 0xab, 0x3d, 0xda, 0x9d, 0x36, 0x98, 0x56,
+	0xc0, 0x7b, 0x30, 0x92, 0x8a, 0x97, 0x32, 0xc9, 0xa5, 0x51, 0xd0, 0xa7, 0x43, 0x63, 0x7f, 0x2f,
+	0xf1, 0x5f, 0x2e, 0x9c, 0x7e, 0xcd, 0x8b, 0x67, 0x4c, 0x4a, 0x2e, 0x0f, 0x9f, 0x30, 0x6f, 0x9d,
+	0xca, 0x67, 0x00, 0x52, 0xb1, 0x4a, 0xd9, 0x21, 0xe1, 0xbd, 0x71, 0x48, 0x8c, 0x0d, 0x5a, 0xdb,
+	0xe8, 0x53, 0x18, 0x4b, 0x25, 0x4a, 0x1b, 0x39, 0x78, 0x63, 0xe4, 0x48, 0x83, 0x4d, 0xe0, 0x03,
+	0x08, 0x35, 0xdd, 0x44, 0xf2, 0xa5, 0x28, 0x56, 0xd2, 0x94, 0x83, 0x4f, 0x03, 0xed, 0x9b, 0x5b,
+	0x97, 0x96, 0x3f, 0x4f, 0x8b, 0xa4, 0x2b, 0x26, 0x5b, 0x17, 0x61, 0x9e, 0x16, 0x4f, 0x1a, 0x1f,
+	0xfe, 0xd3, 0x85, 0x81, 0x16, 0x0a, 0x5d, 0x80, 0xc7, 0x84, 0x34, 0xb2, 0xec, 0xcf, 0x41, 0xc3,
+	0x34, 0x3a, 0x13, 0xb2, 0x16, 0x67, 0x2f, 0x3a, 0x13, 0x12, 0x9d, 0x43, 0xc0, 0x84, 0x4c, 0x6e,
+	0x16, 0x3c, 0x30, 0x21, 0xbf, 0xa8, 0x6b, 0xfe, 0x1c, 0x82, 0xac, 0x07, 0xb0, 0x55, 0x0f, 0x59,
+	0x07, 0xd0, 0x5c, 0xd8, 0xcb, 0x1e, 0x17, 0xbf, 0xe6, 0xc2, 0x5e, 0xb6, 0x5c, 0xd0, 0x07, 0x70,
+	0x4b, 0x5f, 0xb3, 0xd3, 0x09, 0x21, 0x13, 0x92, 0x36, 0xcd, 0xa0, 0x51, 0xd9, 0x4d, 0xd4, 0xd0,
+	0xa2, 0xb2, 0x1e, 0x0a, 0x7f, 0x08, 0xc7, 0xb6, 0x7e, 0xd0, 0x7d, 0x38, 0x2e, 0xcd, 0xaa, 0x9e,
+	0x18, 0x3e, 0xd1, 0x1b, 0xb4, 0x76, 0xce, 0xfe, 0x76, 0x01, 0x9e, 0x55, 0x7c, 0x95, 0x2e, 0x4d,
+	0x0e, 0x17, 0x30, 0x6a, 0x3e, 0x29, 0x14, 0x90, 0xee, 0x87, 0x8b, 0xcf, 0xc8, 0xf6, 0xe7, 0x85,
+	0x8f, 0xd0, 0x15, 0x9c, 0xdc, 0x68, 0x4c, 0x74, 0x87, 0xbc, 0xaa, 0x51, 0xe3, 0xbb, 0xe4, 0x95,
+	0xa3, 0x11, 0x1f, 0x7d, 0xe4, 0xa0, 0x2b, 0x40, 0xbb, 0x2d, 0x88, 0x62, 0xf2, 0xda, 0xbe, 0x8c,
+	0x43, 0xd2, 0x1b, 0x6d, 0xe6, 0x8c, 0x87, 0x30, 0x6e, 0x1b, 0x06, 0x9d, 0x91, 0xed, 0xe6, 0x89,
+	0x87, 0xc4, 0xda, 0xf8, 0x08, 0x3d, 0x06, 0xe8, 0x46, 0x2b, 0xba, 0xbb, 0xf3, 0xf4, 0x4f, 0xf4,
+	0x1f, 0x1f, 0xbf, 0x43, 0x76, 0xe7, 0x2f, 0x3e, 0x5a, 0x1c, 0x1b, 0xd8, 0xc7, 0xff, 0x05, 0x00,
+	0x00, 0xff, 0xff, 0xd3, 0x59, 0x84, 0xe8, 0x49, 0x08, 0x00, 0x00,
 }

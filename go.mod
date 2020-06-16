@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.4.0
+	github.com/gorilla/handlers v1.4.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/hashicorp/go-retryablehttp v0.6.6
