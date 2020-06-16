@@ -16,7 +16,7 @@ type Sat struct {
 	updateTime time.Time
 }
 
-// Category is holding categories of sats
+// Category is holding categories of sats.
 type Category struct {
 	ID   int32
 	Name string

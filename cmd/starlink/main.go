@@ -16,12 +16,6 @@ import (
 
 var (
 	sataasURI = flag.String("sataasURI", "localhost:9200", "sataas grpc URI")
-
-	lat = flag.Float64("lat", 46.83, "latitude of observer")
-	lng = flag.Float64("lng", -71.25, "longitude of observer")
-	alt = flag.Float64("alt", 0, "altitude of observer")
-
-	duration = flag.Duration("duration", 24*time.Hour, "compute passes from now to duration")
 )
 
 func main() {
@@ -82,6 +76,5 @@ func main() {
 				loc.Longitude,
 				loc.Altitude)
 		}
-
 	}
 }

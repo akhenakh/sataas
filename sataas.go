@@ -308,7 +308,7 @@ func (s *Service) GenPasses(ctx context.Context, req *satsvc.GenPassesRequest) (
 	return &satsvc.Passes{Passes: passes}, nil
 }
 
-// Categories gRPC exposed to get category list
+// Categories gRPC exposed to get category list.
 func (s *Service) Categories(ctx context.Context, empty *empty.Empty) (*satsvc.CategoriesResponse, error) {
 	return s.categories.grpcCategories, nil
 }
