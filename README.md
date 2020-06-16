@@ -9,9 +9,10 @@ API is exported with gRPC
 ```proto
 service Prediction {
     rpc SatInfos (SatRequest) returns (SatInfosResponse) {}
-    rpc SatLocation (SatLocationRequest) returns (Location) {}
+    rpc SatsLocations (SatsLocationsRequest) returns (stream SatsLocationsResponse) {}
     rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
     rpc GenPasses(GenPassesRequest) returns (Passes) {}
+    rpc Categories (google.protobuf.Empty) returns (CategoriesResponse) {}
 }
 ```
 
@@ -22,7 +23,9 @@ Start the server
 make sataas && ./cmd/sataas/sataas   
 ```
 
-Getting International space station location & compute passes for the next 2h & get a live stream of the position
+## Example tools provided
+
+- Getting International space station location & compute passes for the next 2h & get a live stream of the position
 ```sh
  ./cmd/satcli/satcli -lat=46.83 -lng=-71.25 -noradNumber=25544 -duration=2h
 2020/05/03 22:18:35 Sat norad_number:25544 name:"ISS (ZARYA)" tle1:"1 25544U 98067A   20124.73419492  .00000752  00000-0  21557-4 0  9996" tle2:"2 25544  51.6446 208.4853 0001149 231.1370 266.9719 15.49344194225126" update_time:<seconds:1588558517 nanos:377783000 > 
@@ -35,6 +38,16 @@ Azimuth : 154 Elevation -21.6 Range: 5654.2km RangeRage: -3.859895
 Azimuth : 154 Elevation -21.6 Range: 5650.4km RangeRage: -3.856864
 ^C
 
+```
+
+- Get all Starlink satellites positions
+```sh
+ ./cmd/starlink/starlink 
+2020/06/15 22:19:18 ID: 44724 Latitude : -23.21 Longitude : 119.74 Altitude: 556.5km
+2020/06/15 22:19:18 ID: 44723 Latitude : 9.01 Longitude : -72.19 Altitude: 550.0km
+2020/06/15 22:19:18 ID: 44722 Latitude : 52.66 Longitude : 0.14 Altitude: 555.4km
+...
+^C
 ```
 
 ## Tech
