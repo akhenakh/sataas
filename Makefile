@@ -13,7 +13,7 @@ targets = sataas satcli starlink
 
 .PHONY: all lint test clean swig sataas satcli starlink docker-image
 
-all: lint test $(targets)
+all: test lint $(targets)
 
 test: 
 	go test -race ./...
@@ -29,6 +29,9 @@ satcli:
 
 starlink:
 	cd cmd/starlink && go build $(LDFLAGS)
+
+starlinkweb:
+	cd cmd/starlinkweb && go build $(LDFLAGS)
 
 swig:
 	cd cppsgp4 && swig -c++ -intgosize 64 -go SGP4.i

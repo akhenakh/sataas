@@ -47,10 +47,10 @@ func main() {
 		}
 	}
 	if found == 0 {
-		log.Fatal("can't find valid cateogry for starlink")
+		log.Fatal("can't find valid category for starlink")
 	}
 
-	req := &satsvc.SatsLocationsRequest{
+	req := &satsvc.SatsRequest{
 		NoradNumbers: nil,
 		Category:     found,
 	}

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	stdlog "log"
 	"net"
 	"net/http"
@@ -15,7 +14,9 @@ import (
 
 	log "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/gobuffalo/packr/v2"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"github.com/namsral/flag"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/sync/errgroup"
@@ -30,9 +31,9 @@ import (
 const appName = "starlinkweb"
 
 var (
-	sataasURI = flag.String("sataasURI", "localhost:9200", "sataas grpc URI")
-	version   = "no version from LDFLAGS"
+	version = "no version from LDFLAGS"
 
+	sataasURI     = flag.String("sataasURI", "localhost:9200", "sataas grpc URI")
 	selfHostedMap = flag.Bool("selfHostedMap", false, "Use a self hosted map rather than MapBox")
 	tilesKey      = flag.String("tilesKey", "", "The key that will passed in the queries to the tiles server")
 	tilesURL      = flag.String(
@@ -43,9 +44,9 @@ var (
 
 	logLevel = flag.String("logLevel", "INFO", "DEBUG|INFO|WARN|ERROR")
 
-	httpPort        = flag.Int("httpPort", 8888, "http port")
-	httpMetricsPort = flag.Int("httpMetricsPort", 8888, "http port")
-	healthPort      = flag.Int("healthPort", 6666, "grpc health port")
+	httpPort        = flag.Int("httpPort", 8090, "http port")
+	httpMetricsPort = flag.Int("httpMetricsPort", 8898, "http port")
+	healthPort      = flag.Int("healthPort", 6696, "grpc health port")
 
 	httpServer        *http.Server
 	grpcHealthServer  *grpc.Server
@@ -124,52 +125,39 @@ func main() {
 
 	c := satsvc.NewPredictionClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
+	// box html templates
+	box := packr.New("Root box", "./templates")
+	// web server
+	s := NewServer(logger, c, box, *selfHostedMap, *tilesURL, *tilesKey)
 
-	cats, err := c.Categories(ctx, &empty.Empty{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	// web server
+	g.Go(func() error {
+		r := mux.NewRouter()
+		r.HandleFunc("/api/tles", s.TLEHandler)
+		//r.HandleFunc("/api/events", s.SSE.HTTPHandler)
+		r.PathPrefix("/").Handler(
+			handlers.CORS(
+				handlers.AllowedOrigins([]string{"*"}))(s))
 
-	var found int32
-	for _, cat := range cats.Categories {
-		if cat.Name == "STARLINK" {
-			found = cat.Id
-			log.Printf("found cat: %+v", cat)
+		httpServer = &http.Server{
+			Addr:         fmt.Sprintf(":%d", *httpPort),
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
+			Handler:      handlers.CompressHandler(r),
 		}
-	}
-	if found == 0 {
-		log.Fatal("can't find valid cateogry for starlink")
-	}
+		level.Info(logger).Log("msg", fmt.Sprintf("HTTP server serving at :%d", *httpPort))
 
-	req := &satsvc.SatsLocationsRequest{
-		NoradNumbers: nil,
-		Category:     found,
-	}
-
-	stream, err := c.SatsLocations(context.Background(), req)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for {
-		locations, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
+		if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
+			return err
 		}
 
-		for _, loc := range locations.SatLocations {
-			log.Printf("ID: %d Latitude : %.02f Longitude : %.02f Altitude: %.01fkm\n",
-				loc.NoradNumber,
-				loc.Latitude,
-				loc.Longitude,
-				loc.Altitude)
-		}
-	}
+		return nil
+	})
+
+	// process streaming from api for /api/events endpoint
+	// g.Go(func() error {
+	// 	return s.Start(ctx)
+	// })
 
 	healthServer.SetServingStatus(fmt.Sprintf("grpc.health.v1.%s", appName), healthpb.HealthCheckResponse_SERVING)
 	level.Info(logger).Log("msg", "serving status to SERVING")
@@ -203,7 +191,7 @@ func main() {
 
 	err = g.Wait()
 	if err != nil {
-		level.Error(logger).Log("msg", "server returning an error", "error", err)
+		level.Debug(logger).Log("msg", "server returning an error", "error", err)
 		os.Exit(2)
 	}
 }

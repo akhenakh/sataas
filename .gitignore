@@ -19,3 +19,4 @@
 /cmd/sataas/sataas
 /cmd/satcli/satcli
 /cmd/starlink/starlink
+/cmd/starlinkweb/starlinkweb

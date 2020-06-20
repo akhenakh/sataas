@@ -45,8 +45,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	resp, err := c.SatInfos(ctx, &satsvc.SatRequest{
-		NoradNumber: int32(*noradNumber),
+	resp, err := c.SatsInfos(ctx, &satsvc.SatsRequest{
+		NoradNumbers: []int32{int32(*noradNumber)},
 	})
 	if err != nil {
 		log.Fatal(err)

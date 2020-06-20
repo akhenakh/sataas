@@ -4,23 +4,23 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
 service Prediction {
-    rpc SatInfos (SatRequest) returns (SatInfosResponse) {}
-    rpc SatsLocations (SatsLocationsRequest) returns (stream SatsLocationsResponse) {}
+    rpc SatsInfos (SatsRequest) returns (SatsInfosResponse) {}
+    rpc SatsLocations (SatsRequest) returns (stream SatsLocationsResponse) {}
     rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
     rpc GenPasses(GenPassesRequest) returns (Passes) {}
     rpc Categories (google.protobuf.Empty) returns (CategoriesResponse) {}
 }
 
-message SatRequest {
-    int32 norad_number = 1;
-}
-
-message SatInfosResponse {
+message SatInfos {
     int32 norad_number = 1;
     string name = 2;
     string tle1 = 3;
     string tle2 = 4;
     google.protobuf.Timestamp update_time = 5;
+}
+
+message SatsInfosResponse {
+    repeated SatInfos sat_infos = 1;
 }
 
 message Location {
@@ -59,7 +59,7 @@ message Observation {
 	double range_rate = 6;
 }
 
-message SatsLocationsRequest {
+message SatsRequest {
     repeated int32 norad_numbers = 1;
     int32 category = 2; // if a category is given it overrides norad_numbers
 }

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8' />
+    <title>Starlink map {{ .Version }}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{ if .SelfHostedMap }}
+    <script src='{{ .TilesURL }}/mapbox-gl.js'></script>
+    <link href='{{ .TilesURL }}/mapbox-gl.css' rel='stylesheet' />
+    {{ else }}
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+    {{ end }}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="./orb-satellite.v2.min.js"></script>
+    <style>
+        #map {
+            height: 700px;
+            margin-bottom: 10px;
+        }
+
+        #map img {
+            max-width: none;
+            min-width: 0px;
+            height: auto;
+        }
+
+        .marker {
+            background-image: url('/sat.png');
+            background-size: cover;
+            width: 26px;
+            height: 35px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-2">
+            <ul class="list-group list-group-flush" id="devices_list">
+
+            </ul>
+        </div>
+        <div class="col-10">
+            <div id='map'></div>
+            <div class="row">
+                <div class="col">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">Sat</th>
+                            <th scope="col">Lat</th>
+                            <th scope="col">Lng</th>
+                        </tr>
+                        </thead>
+                        <tbody id='sat_body'>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    {{ if not .SelfHostedMap }}
+    mapboxgl.accessToken = '{{ .TilesKey }}';
+    {{ end }}
+    var map = new mapboxgl.Map({
+        container: 'map',
+        {{ if .SelfHostedMap }}
+        style: '{{ .TilesURL }}/osm-liberty-gl.style',
+        {{ else }}
+        style: 'mapbox://styles/mapbox/streets-v9',
+        {{ end }}
+        center: [{{ .Lng }}, {{ .Lat }}],
+        zoom: 4,
+        maxZoom: 15,
+        minZoom: 2,
+        {{ if .SelfHostedMap}}
+        transformRequest: (url, resourceType)=> {
+            if(resourceType === 'Tile') {
+                return {
+                    url: url,
+                    headers: { 'X-Key': '{{ .TilesKey }}'}
+                }
+            }
+        }
+        {{ end }}
+    });
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', "/api/tles", true);
+
+    var sats = new Map();
+    var markers = [];
+
+    // create a HTML element for each feature
+    var el = document.createElement('div');
+    el.className = 'marker';
+
+    function updatePositions() {
+        var date = new Date();
+        const devicebody = document.getElementById('sat_body');
+        devicebody.innerHTML = '';
+
+        markers.forEach((marker) => marker.remove());
+        markers = [];
+
+        for (let [key, sat] of sats) {
+            var latlng = sat.latlng(date);
+            let html = '<tr><td>' + key + '</td><td>' + latlng.latitude.toString() + '</td><td>' + latlng.longitude.toString();
+            html += '</td></tr>';
+
+            devicebody.innerHTML += html;
+
+            // var marker = new mapboxgl.Marker(el)
+            //     .setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude))
+            //     .addTo(map);
+            // markers.push(marker);
+        }
+    }
+
+    function fetchTLE() {
+        xhr.onload = function() {
+            if (xhr.status !== 200) {
+                return;
+            }
+            let data = JSON.parse(xhr.responseText);
+
+            const devicebody = document.getElementById('sat_body');
+            devicebody.innerHTML = '';
+
+            var date = new Date();
+
+            data.forEach(function (value) {
+                var tle = {
+                    first_line:value["tle1"],
+                    second_line:value["tle2"]
+                }
+
+                var sat = new Orb.SGP4(tle);
+                sats.set(value["name"], sat);
+                var latlng = sat.latlng(date);
+                let html = '<tr><td>' + value["name"] + '</td><td>' + latlng.latitude.toString() + '</td><td>' + latlng.longitude.toString();
+                html += '</td></tr>';
+
+                devicebody.innerHTML += html;
+
+                // make a marker for each feature and add to the map
+                new mapboxgl.Marker(el)
+                    .setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude))
+                    .addTo(map);
+                //markers.push(marker);
+            });
+
+            setInterval(updatePositions, 1000);
+        };
+
+        xhr.send();
+    }
+
+    map.on('load', function () {
+        fetchTLE();
+    });
+
+    // Add zoom and rotation controls to the map.
+    map.addControl(new mapboxgl.NavigationControl());
+    // Add geolocate control to the map.
+    map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: {
+            enableHighAccuracy: false
+        },
+        trackUserLocation: false
+    }));
+
+    // const evtSource = new EventSource("/api/events?stream=starlink");
+    // evtSource.onmessage = function(event) {
+    //     console.log(event);
+    // }
+
+</script>
+</body>
+</html>
+

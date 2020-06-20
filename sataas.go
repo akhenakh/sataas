@@ -106,27 +106,48 @@ func (s *Service) UpdateCategories() error {
 }
 
 // SatInfos gRPC exposed to query satellites infos.
-func (s *Service) SatInfos(ctx context.Context, req *satsvc.SatRequest) (*satsvc.SatInfosResponse, error) {
-	sat, ok := s.sats.Get(req.NoradNumber)
-	if !ok {
-		return nil, status.Error(codes.NotFound, "non existing norad id")
+func (s *Service) SatsInfos(ctx context.Context, req *satsvc.SatsRequest) (*satsvc.SatsInfosResponse, error) {
+	if len(req.NoradNumbers) == 0 && req.Category == 0 {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	ut, err := ptypes.TimestampProto(sat.updateTime)
-	if !ok {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("can't serialize time %v", err))
+	if req.Category != 0 {
+		cat, ok := s.categories.categories[req.Category]
+		if !ok {
+			return nil, status.Error(codes.NotFound, "invalid category")
+		}
+		req.NoradNumbers = cat.Sats
 	}
-	return &satsvc.SatInfosResponse{
-		NoradNumber: int32(sat.TLE.NoradNumber()),
-		Name:        sat.TLE.Name(),
-		Tle1:        sat.TLE.Line1(),
-		Tle2:        sat.TLE.Line2(),
-		UpdateTime:  ut,
-	}, nil
+
+	resp := &satsvc.SatsInfosResponse{
+		SatInfos: make([]*satsvc.SatInfos, len(req.NoradNumbers)),
+	}
+
+	for i, satid := range req.NoradNumbers {
+		sat, ok := s.sats.Get(satid)
+		if !ok {
+			return nil, status.Error(codes.NotFound, fmt.Sprintf("non existing norad id %d", satid))
+		}
+
+		ut, err := ptypes.TimestampProto(sat.updateTime)
+		if !ok {
+			return nil, status.Error(codes.Internal, fmt.Sprintf("can't serialize time %v", err))
+		}
+
+		resp.SatInfos[i] = &satsvc.SatInfos{
+			NoradNumber: int32(sat.TLE.NoradNumber()),
+			Name:        sat.TLE.Name(),
+			Tle1:        sat.TLE.Line1(),
+			Tle2:        sat.TLE.Line2(),
+			UpdateTime:  ut,
+		}
+	}
+
+	return resp, nil
 }
 
 // SatLocation gRPC exposed satellites position.
-func (s *Service) SatsLocations(req *satsvc.SatsLocationsRequest, stream satsvc.Prediction_SatsLocationsServer) error {
+func (s *Service) SatsLocations(req *satsvc.SatsRequest, stream satsvc.Prediction_SatsLocationsServer) error {
 	if len(req.NoradNumbers) == 0 && req.Category == 0 {
 		return status.Error(codes.InvalidArgument, "invalid request")
 	}
