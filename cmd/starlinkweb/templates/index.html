@@ -98,31 +98,21 @@
     xhr.open('GET', "/api/tles", true);
 
     var sats = new Map();
-    var markers = [];
 
-    // create a HTML element for each feature
-    var el = document.createElement('div');
-    el.className = 'marker';
 
     function updatePositions() {
         var date = new Date();
         const devicebody = document.getElementById('sat_body');
-        devicebody.innerHTML = '';
+        //devicebody.innerHTML = '';
 
-        markers.forEach((marker) => marker.remove());
-        markers = [];
+        for (let [key, p] of sats) {
+            var latlng = p.sat.latlng(date);
 
-        for (let [key, sat] of sats) {
-            var latlng = sat.latlng(date);
-            let html = '<tr><td>' + key + '</td><td>' + latlng.latitude.toString() + '</td><td>' + latlng.longitude.toString();
-            html += '</td></tr>';
+            // let html = '<tr><td>' + key + '</td><td>' + latlng.latitude.toString() + '</td><td>' + latlng.longitude.toString();
+            // html += '</td></tr>';
+            // devicebody.innerHTML += html;
 
-            devicebody.innerHTML += html;
-
-            // var marker = new mapboxgl.Marker(el)
-            //     .setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude))
-            //     .addTo(map);
-            // markers.push(marker);
+            p.marker.setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude));
         }
     }
 
@@ -145,7 +135,7 @@
                 }
 
                 var sat = new Orb.SGP4(tle);
-                sats.set(value["name"], sat);
+
                 var latlng = sat.latlng(date);
                 let html = '<tr><td>' + value["name"] + '</td><td>' + latlng.latitude.toString() + '</td><td>' + latlng.longitude.toString();
                 html += '</td></tr>';
@@ -153,10 +143,13 @@
                 devicebody.innerHTML += html;
 
                 // make a marker for each feature and add to the map
-                new mapboxgl.Marker(el)
+                var el = document.createElement('div');
+                el.className = 'marker';
+
+                var marker = new mapboxgl.Marker(el)
                     .setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude))
                     .addTo(map);
-                //markers.push(marker);
+                sats.set(value["name"], {"sat":sat, "marker":marker});
             });
 
             setInterval(updatePositions, 1000);
