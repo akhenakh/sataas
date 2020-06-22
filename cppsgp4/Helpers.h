@@ -17,6 +17,12 @@ struct PassDetails {
   double los_range_rate;
 };
 
+std::vector<struct CoordGeodetic> GeneratePosList(
+                                               SGP4& sgp4,
+                                               const DateTime& start_time,
+                                               const DateTime& end_time,
+                                               const int time_step);
+
 std::vector<struct PassDetails> GeneratePassList(
                                                const double lat,
                                                const double lng,

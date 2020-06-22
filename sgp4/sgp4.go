@@ -38,6 +38,12 @@ func catch(err *error) {
 	}
 }
 
+type Location struct {
+	SatLat      float64
+	SatLng      float64
+	SatAltitude float64
+}
+
 type Observation struct {
 	SatLat      float64
 	SatLng      float64
@@ -102,7 +108,7 @@ func (p *SGP4) GeneratePasses(lat, lng, alt float64, start, stop time.Time, step
 		stop.Hour(), stop.Minute(), stop.Second())
 
 	cdetails := cppsgp4.GeneratePassList(lat, lng, alt, p.csgp4, startdt, stopdt, step)
-	details := make([]PassDetails, cdetails.Capacity())
+	details := make([]PassDetails, cdetails.Size())
 
 	for i := 0; i < int(cdetails.Capacity()); i++ {
 		cpd := cdetails.Get(i)
@@ -121,4 +127,28 @@ func (p *SGP4) GeneratePasses(lat, lng, alt float64, start, stop time.Time, step
 		}
 	}
 	return details
+}
+
+func (p *SGP4) GenerateLocations(start, stop time.Time, step int) []Location {
+	startdt := cppsgp4.NewDateTime(
+		start.Year(), int(start.Month()), start.Day(),
+		start.Hour(), start.Minute(), start.Second())
+
+	stopdt := cppsgp4.NewDateTime(
+		stop.Year(), int(stop.Month()), stop.Day(),
+		stop.Hour(), stop.Minute(), stop.Second())
+
+	cgeos := cppsgp4.GeneratePosList(p.csgp4, startdt, stopdt, step)
+	geos := make([]Location, cgeos.Size())
+
+	for i := 0; i < int(cgeos.Capacity()); i++ {
+		cgeo := cgeos.Get(i)
+
+		geos[i] = Location{
+			SatLat:      cgeo.GetLatitude(),
+			SatLng:      cgeo.GetLongitude(),
+			SatAltitude: cgeo.GetAltitude(),
+		}
+	}
+	return geos
 }

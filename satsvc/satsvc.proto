@@ -3,10 +3,12 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
+
 service Prediction {
     rpc SatsInfos (SatsRequest) returns (SatsInfosResponse) {}
     rpc SatsLocations (SatsRequest) returns (stream SatsLocationsResponse) {}
     rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
+    rpc GenLocations(GenLocationsRequest) returns (GenLocationsResponse) {}
     rpc GenPasses(GenPassesRequest) returns (Passes) {}
     rpc Categories (google.protobuf.Empty) returns (CategoriesResponse) {}
 }
@@ -77,6 +79,24 @@ message GenPassesRequest {
     google.protobuf.Timestamp stop_time = 4;
     int32 step_seconds = 5;
     double min_elevation = 6;
+}
+
+message GenLocationsRequest {
+    repeated int32 norad_numbers = 1;
+    int32 category = 2; // if a category is given it overrides norad_numbers
+    google.protobuf.Timestamp start_time = 3;
+    google.protobuf.Timestamp stop_time = 4;
+    int32 step_seconds = 5;
+}
+
+message GenLocationsResponse {
+    repeated GenLocations locations = 1;
+    int32 step_seconds = 2;
+}
+
+message GenLocations {
+    int32 norad_number = 1;
+    repeated Location location = 2;
 }
 
 message Pass {

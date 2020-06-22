@@ -17,8 +17,11 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/namsral/flag"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -36,7 +39,8 @@ var (
 
 	grpcPort        = flag.Int("grpcPort", 9200, "gRPC API port")
 	healthPort      = flag.Int("healthPort", 6666, "grpc health port")
-	httpMetricsPort = flag.Int("httpMetricsPort", 8088, "http port")
+	httpMetricsPort = flag.Int("httpMetricsPort", 8088, "http metrics port")
+	httpPort        = flag.Int("httpPort", 8081, "http port")
 
 	tleURL = flag.String(
 		"tleURL",
@@ -53,6 +57,7 @@ var (
 	grpcServer        *grpc.Server
 	grpcHealthServer  *grpc.Server
 	httpMetricsServer *http.Server
+	httpServer        *http.Server
 )
 
 func main() {
@@ -129,6 +134,47 @@ func main() {
 		level.Error(logger).Log("msg", "can't fetch Categories", "error", err)
 	}
 
+	grpcServer = grpc.NewServer(
+		// MaxConnectionAge is just to avoid long connection, to facilitate load balancing
+		// MaxConnectionAgeGrace will torn them, default to infinity
+		grpc.KeepaliveParams(keepalive.ServerParameters{MaxConnectionAge: 2 * time.Minute}),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_opentracing.StreamServerInterceptor(),
+			grpc_prometheus.StreamServerInterceptor,
+		)),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_opentracing.UnaryServerInterceptor(),
+			grpc_prometheus.UnaryServerInterceptor,
+		)),
+	)
+
+	g.Go(func() error {
+		grpcWebServer := grpcweb.WrapServer(grpcServer)
+
+		httpServer = &http.Server{
+			Handler: h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.ProtoMajor == 2 {
+					grpcWebServer.ServeHTTP(w, r)
+				} else {
+					w.Header().Set("Access-Control-Allow-Origin", "*")
+					w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+					w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-User-Agent, X-Grpc-Web")
+					w.Header().Set("grpc-status", "")
+					w.Header().Set("grpc-message", "")
+					if grpcWebServer.IsGrpcWebRequest(r) {
+						grpcWebServer.ServeHTTP(w, r)
+					}
+				}
+			}), &http2.Server{}),
+		}
+
+		if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
+			return err
+		}
+
+		return nil
+	})
+
 	// gRPC Server
 	g.Go(func() error {
 		addr := fmt.Sprintf(":%d", *grpcPort)
@@ -138,19 +184,6 @@ func main() {
 			os.Exit(2)
 		}
 
-		grpcServer = grpc.NewServer(
-			// MaxConnectionAge is just to avoid long connection, to facilitate load balancing
-			// MaxConnectionAgeGrace will torn them, default to infinity
-			grpc.KeepaliveParams(keepalive.ServerParameters{MaxConnectionAge: 2 * time.Minute}),
-			grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-				grpc_opentracing.StreamServerInterceptor(),
-				grpc_prometheus.StreamServerInterceptor,
-			)),
-			grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-				grpc_opentracing.UnaryServerInterceptor(),
-				grpc_prometheus.UnaryServerInterceptor,
-			)),
-		)
 		satsvc.RegisterPredictionServer(grpcServer, s)
 		level.Info(logger).Log("msg", fmt.Sprintf("gRPC server serving at %s", addr))
 
@@ -183,6 +216,10 @@ func main() {
 
 	if httpMetricsServer != nil {
 		_ = httpMetricsServer.Shutdown(shutdownCtx)
+	}
+
+	if httpServer != nil {
+		_ = httpServer.Shutdown(shutdownCtx)
 	}
 
 	if grpcHealthServer != nil {

@@ -25,6 +25,7 @@
 
 namespace std {
    %template(PassDetailsVector) vector<PassDetails>;
+   %template(GeosVector) vector<CoordGeodetic>;
 }
 
 class SGP4 {
@@ -60,6 +61,12 @@ public:
     static DateTime Now(bool useMicroseconds = false);
     double ToJulian() const;
 };
+
+std::vector<struct CoordGeodetic> GeneratePosList(
+                                               SGP4& sgp4,
+                                               const DateTime& start_time,
+                                               const DateTime& end_time,
+                                               const int time_step);
 
 std::vector<struct PassDetails> GeneratePassList(
                                              const double lat,

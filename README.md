@@ -81,3 +81,5 @@ https://db.satnogs.org/api/
 
 ## On going
 https://gis.stackexchange.com/questions/77651/how-to-find-ring-of-coverage-of-gps-satellite-on-wgs-84-ellipsoid
+
+https://rogchap.com/2019/07/26/in-process-grpc-web-proxy/

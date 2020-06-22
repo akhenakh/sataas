@@ -146,7 +146,7 @@ func (s *Service) SatsInfos(ctx context.Context, req *satsvc.SatsRequest) (*sats
 	return resp, nil
 }
 
-// SatLocation gRPC exposed satellites position.
+// SatLocations gRPC exposed satellites position.
 func (s *Service) SatsLocations(req *satsvc.SatsRequest, stream satsvc.Prediction_SatsLocationsServer) error {
 	if len(req.NoradNumbers) == 0 && req.Category == 0 {
 		return status.Error(codes.InvalidArgument, "invalid request")
@@ -262,6 +262,58 @@ func (s *Service) SatLocationFromObs(req *satsvc.SatLocationFromObsRequest,
 			}
 		}
 	}
+}
+
+// GenLocations gRPC exposed to generate positions
+func (s *Service) GenLocations(ctx context.Context, req *satsvc.GenLocationsRequest) (*satsvc.GenLocationsResponse, error) {
+	if len(req.NoradNumbers) == 0 && req.Category == 0 {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	if req.Category != 0 {
+		cat, ok := s.categories.categories[req.Category]
+		if !ok {
+			return nil, status.Error(codes.NotFound, "invalid category")
+		}
+		req.NoradNumbers = cat.Sats
+	}
+
+	resp := &satsvc.GenLocationsResponse{
+		Locations:   make([]*satsvc.GenLocations, len(req.NoradNumbers)),
+		StepSeconds: req.StepSeconds,
+	}
+
+	startt, err := ptypes.Timestamp(req.StartTime)
+	if err != nil {
+		return nil, err
+	}
+
+	stopp, err := ptypes.Timestamp(req.StopTime)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, satid := range req.NoradNumbers {
+		sat, ok := s.sats.Get(satid)
+		if !ok {
+			return nil, status.Error(codes.NotFound, fmt.Sprintf("non existing norad id %d", satid))
+		}
+
+		locs := sat.GenerateLocations(startt, stopp, int(req.StepSeconds))
+		resp.Locations[i] = &satsvc.GenLocations{
+			NoradNumber: satid,
+			Location:    make([]*satsvc.Location, len(locs)),
+		}
+		for j, loc := range locs {
+			resp.Locations[i].Location[j] = &satsvc.Location{
+				Latitude:  loc.SatLng,
+				Longitude: loc.SatLng,
+				Altitude:  loc.SatAltitude,
+			}
+		}
+	}
+
+	return resp, nil
 }
 
 // GenPasses gRPC exposed to generate satellites passes.

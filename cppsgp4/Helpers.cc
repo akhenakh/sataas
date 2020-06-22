@@ -8,6 +8,29 @@
 #include <cmath>
 #include <iostream>
 
+std::vector<struct CoordGeodetic> GeneratePosList(
+                                               SGP4& sgp4,
+                                               const DateTime& start_time,
+                                               const DateTime& end_time,
+                                               const int time_step)
+{
+  std::vector<struct CoordGeodetic> pass_list;
+  DateTime previous_time(start_time);
+  DateTime current_time(start_time);
+
+  while (current_time < end_time)
+  {
+    /*
+     * calculate satellite position
+     */
+    Eci eci = sgp4.FindPosition(current_time);
+    CoordGeodetic geo = eci.ToGeodetic();
+    pass_list.push_back(geo);
+  }
+
+  return pass_list;
+}
+
 std::vector<struct PassDetails> GeneratePassList(
                                                const double lat,
                                                const double lng,

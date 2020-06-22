@@ -54,8 +54,8 @@
                         <thead>
                         <tr>
                             <th scope="col">Sat</th>
-                            <th scope="col">Lat</th>
-                            <th scope="col">Lng</th>
+                            <th scope="col">Azimuth</th>
+                            <th scope="col">Elevation</th>
                         </tr>
                         </thead>
                         <tbody id='sat_body'>
@@ -99,6 +99,11 @@
 
     var sats = new Map();
 
+    var clocation = {
+        "latitude": {{.Lat}},
+        "longitude": {{.Lng}},
+        "altitude":0
+    }
 
     function updatePositions() {
         var date = new Date();
@@ -107,11 +112,11 @@
 
         for (let [key, p] of sats) {
             var latlng = p.sat.latlng(date);
-
-            // let html = '<tr><td>' + key + '</td><td>' + latlng.latitude.toString() + '</td><td>' + latlng.longitude.toString();
-            // html += '</td></tr>';
-            // devicebody.innerHTML += html;
-
+            // var observe = new Orb.Observation({"observer":clocation, "target":p.sat});
+            // var horizontal = observe.azel(date); // horizontal coordinates(azimuth, elevation)
+            // if (horizontal.elevation > 0) {
+            //     console.log("visible", p.sat, horizontal.elevation);
+            // }
             p.marker.setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude));
         }
     }
@@ -137,8 +142,7 @@
                 var sat = new Orb.SGP4(tle);
 
                 var latlng = sat.latlng(date);
-                let html = '<tr><td>' + value["name"] + '</td><td>' + latlng.latitude.toString() + '</td><td>' + latlng.longitude.toString();
-                html += '</td></tr>';
+                let html = '<tr><td>' + value["name"] + '</td></tr>';
 
                 devicebody.innerHTML += html;
 
@@ -146,9 +150,11 @@
                 var el = document.createElement('div');
                 el.className = 'marker';
 
+
                 var marker = new mapboxgl.Marker(el)
                     .setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude))
                     .addTo(map);
+                marker.title = value["name"];
                 sats.set(value["name"], {"sat":sat, "marker":marker});
             });
 
@@ -160,6 +166,14 @@
 
     map.on('load', function () {
         fetchTLE();
+    });
+
+    map.on('click', function(e) {
+        console.log(e);
+        new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(e.title)
+            .addTo(map);
     });
 
     // Add zoom and rotation controls to the map.
