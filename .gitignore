@@ -20,3 +20,4 @@
 /cmd/satcli/satcli
 /cmd/starlink/starlink
 /cmd/starlinkweb/starlinkweb
+/satsvc/js/node_modules/
