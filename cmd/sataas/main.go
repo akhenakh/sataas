@@ -152,6 +152,9 @@ func main() {
 		grpcWebServer := grpcweb.WrapServer(grpcServer)
 
 		httpServer = &http.Server{
+			Addr:         fmt.Sprintf(":%d", *httpPort),
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
 			Handler: h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.ProtoMajor == 2 {
 					grpcWebServer.ServeHTTP(w, r)
@@ -167,6 +170,7 @@ func main() {
 				}
 			}), &http2.Server{}),
 		}
+		level.Info(logger).Log("msg", fmt.Sprintf("HTTP server listening at :%d", *httpPort))
 
 		if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
 			return err
