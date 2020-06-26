@@ -44,7 +44,7 @@ jsserv:
 	cd js && npx http-server -p 8090
 
 jsdev:
-	cd js && npm install &&  npx webpack --mode development main.js
+	cd js && npm install && npx webpack --mode development main.js
 
 cmd/sataas/grpc_health_probe: GRPC_HEALTH_PROBE_VERSION=v0.3.2
 cmd/sataas/grpc_health_probe:

@@ -1,0 +1,18 @@
+#map {
+    height: 700px;
+    margin-bottom: 10px;
+}
+
+#map img {
+    max-width: none;
+    min-width: 0px;
+    height: auto;
+}
+
+.marker {
+    background-image: url('/sat.png');
+    background-size: cover;
+    width: 26px;
+    height: 35px;
+    cursor: pointer;
+}

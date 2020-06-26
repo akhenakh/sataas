@@ -1,15 +1,28 @@
 {
   "name": "grpc-web-satsvc",
   "type": "module",
-  "main": "index.js",
   "dependencies": {
     "google-protobuf": "~3.12.0",
     "grpc-web": "~1.2.0",
     "mapbox-gl": "^1.11.0",
-    "orb.js": "lizard-isana/orb.js"
+    "orb.js": "github:lizard-isana/orb.js"
   },
   "devDependencies": {
-    "webpack": "~4.43.0",
-    "webpack-cli": "~3.3.11"
-  }
+    "css-loader": "^3.6.0",
+    "html-webpack-plugin": "^4.3.0",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "webpack --mode development",
+    "start": "webpack-dev-server --mode development --open",
+    "build": "webpack --mode production"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": ""
 }
