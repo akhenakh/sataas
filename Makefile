@@ -11,7 +11,7 @@ CGO_ENABLED=1
 
 targets = sataas satcli starlink
 
-.PHONY: all lint test clean swig sataas satcli starlink starlinkweb docker-image js jsdev
+.PHONY: all lint test clean swig sataas satcli starlink starlinkweb docker-image js jsdev jsserv
 
 all: test lint $(targets)
 
@@ -37,12 +37,14 @@ swig:
 	cd cppsgp4 && swig -c++ -intgosize 64 -go SGP4.i
 
 js:
-	cd satsvc/js && npm install &&  npx webpack client.js
-	cp satsvc/js/dist/main.js cmd/starlinkweb/templates
+	cd js && npm install &&  npx webpack main.js
+	cp js/dist/main.js cmd/starlinkweb/templates
+
+jsserv:
+	cd js && npx http-server -p 8090
 
 jsdev:
-	cd satsvc/js && npm install &&  npx webpack --mode development client.js
-	cp satsvc/js/dist/main.js cmd/starlinkweb/templates
+	cd js && npm install &&  npx webpack --mode development main.js
 
 cmd/sataas/grpc_health_probe: GRPC_HEALTH_PROBE_VERSION=v0.3.2
 cmd/sataas/grpc_health_probe:
