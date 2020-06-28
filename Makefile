@@ -37,14 +37,13 @@ swig:
 	cd cppsgp4 && swig -c++ -intgosize 64 -go SGP4.i
 
 js:
-	cd js && npm install &&  npx webpack main.js
-	cp js/dist/main.js cmd/starlinkweb/templates
+	cd js && npm install &&  npx webpack
 
 jsserv:
 	cd js && npx http-server -p 8090
 
 jsdev:
-	cd js && npm install && npx webpack --mode development main.js
+	cd js && npm install && npx webpack --mode development
 
 cmd/sataas/grpc_health_probe: GRPC_HEALTH_PROBE_VERSION=v0.3.2
 cmd/sataas/grpc_health_probe:
