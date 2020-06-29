@@ -76,6 +76,8 @@ map.on('load', function () {
                 .addTo(map);
             sats.set(infos.getName(), {"sat": sat, "marker": marker});
         }
+
+        setInterval(updatePositions, 1000);
     });
 });
 
