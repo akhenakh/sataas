@@ -10,7 +10,7 @@
 }
 
 .marker {
-    background-image: url('/sat.png');
+    background-image: url('./sat.png');
     background-size: cover;
     width: 26px;
     height: 35px;
