@@ -5,12 +5,23 @@ import "google/protobuf/empty.proto";
 
 
 service Prediction {
-    rpc SatsInfos (SatsRequest) returns (SatsInfosResponse) {}
-    rpc SatsLocations (SatsRequest) returns (stream SatsLocationsResponse) {}
-    rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
-    rpc GenLocations(GenLocationsRequest) returns (GenLocationsResponse) {}
-    rpc GenPasses(GenPassesRequest) returns (Passes) {}
+    // Categories returns all known categories with norad numbers
     rpc Categories (google.protobuf.Empty) returns (CategoriesResponse) {}
+
+    // SatsInfos returns norad number and TLEs for active sats
+    rpc SatsInfos (SatsRequest) returns (SatsInfosResponse) {}
+
+    // SatsLocations returns a stream of locations for a list of sats or a category
+    rpc SatsLocations (SatsRequest) returns (stream SatsLocationsResponse) {}
+
+    // SatLocationFromObs returns a stream of observations from a location for a list of sats or a category
+    rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
+
+    // GenLocations returns the predicted locations for a list of sats or a category
+    rpc GenLocations(GenLocationsRequest) returns (GenLocationsResponse) {}
+
+    // GenPasses returns the predicted passes for a sat
+    rpc GenPasses(GenPassesRequest) returns (Passes) {}
 }
 
 message SatInfos {
@@ -41,7 +52,7 @@ message SatLocation {
 message Category {
     int32 id = 1;
     string name = 2;
-    repeated int32 sats = 3;
+    repeated int32 sats = 3; // as norad numbers
 }
 
 message SatsLocationsResponse {

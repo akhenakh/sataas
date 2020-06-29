@@ -56,6 +56,7 @@ var (
 	grpcServer        *grpc.Server
 	grpcHealthServer  *grpc.Server
 	httpMetricsServer *http.Server
+	httpServer        *http.Server
 )
 
 func main() {
@@ -150,7 +151,7 @@ func main() {
 
 		grpcWebServer := grpcweb.WrapServer(grpcServer)
 
-		httpServer := &http.Server{
+		httpServer = &http.Server{
 			Addr:         fmt.Sprintf(":%d", *grpcPort),
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 10 * time.Second,
@@ -207,6 +208,10 @@ func main() {
 
 	if grpcHealthServer != nil {
 		grpcHealthServer.GracefulStop()
+	}
+
+	if httpServer != nil {
+		_ = httpServer.Shutdown(shutdownCtx)
 	}
 
 	err = g.Wait()

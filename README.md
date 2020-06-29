@@ -4,15 +4,27 @@ Satellites As A Service
 
 ## API WIP
 
-API is exported with gRPC
+API exported via gRPC.
 
 ```proto
 service Prediction {
-    rpc SatInfos (SatRequest) returns (SatInfosResponse) {}
-    rpc SatsLocations (SatsLocationsRequest) returns (stream SatsLocationsResponse) {}
-    rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
-    rpc GenPasses(GenPassesRequest) returns (Passes) {}
+    // Categories returns all known categories with norad numbers
     rpc Categories (google.protobuf.Empty) returns (CategoriesResponse) {}
+
+    // SatsInfos returns norad number and tles for active sats
+    rpc SatsInfos (SatsRequest) returns (SatsInfosResponse) {}
+
+    // SatsLocations returns a stream of locations for a list of sats or a category
+    rpc SatsLocations (SatsRequest) returns (stream SatsLocationsResponse) {}
+
+    // SatLocationFromObs returns a stream of observations from a location for a list of sats or a category
+    rpc SatLocationFromObs (SatLocationFromObsRequest) returns (stream Observation) {}
+
+    // GenLocations returns the predicted locations for a list of sats or a category
+    rpc GenLocations(GenLocationsRequest) returns (GenLocationsResponse) {}
+
+    // GenPasses returns the predicted passes for a sat
+    rpc GenPasses(GenPassesRequest) returns (Passes) {}
 }
 ```
 
@@ -54,6 +66,8 @@ Azimuth : 154 Elevation -21.6 Range: 5650.4km RangeRage: -3.856864
 
 `cppsgp4` is swig wrapped from the [sgp4 c++ library](https://github.com/dnwrnr/sgp4).  
 `sgp4` is a wrapper to handle c++ exceptions into Go errors, and a Goish API.
+
+The gRPC is exposed as pure gRPC and as grpc-web on the same port.
 
 ## Update bindings
 

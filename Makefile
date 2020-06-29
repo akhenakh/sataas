@@ -40,7 +40,7 @@ js:
 	cd js && npm install &&  npx webpack
 
 jsserv:
-	cd js && npx http-server -p 8090
+	cd js && npm start
 
 jsdev:
 	cd js && npm install && npx webpack --mode development
