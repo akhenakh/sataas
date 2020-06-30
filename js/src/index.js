@@ -42,14 +42,15 @@ function updatePositions() {
         var latlng = p.sat.latlng(date);
 
         const distance = cr.distance([clocation.longitude, clocation.latitude], [latlng.longitude, latlng.latitude]);
-        if (distance < 500) {
+        if (distance < 1800) {
             var observe = new Orb.Observation({"observer":clocation, "target":p.sat});
             var horizontal = observe.azel(date); // horizontal coordinates(azimuth, elevation)
-            //if (horizontal.elevation > 2) {
-                let html = '<tr><td>' + key + '</td><td>' + Number((horizontal.azimuth).toFixed(1)).toString() + '</td><td>' + Number((horizontal.elevation).toFixed(1)).toString() ;
+            let elev = horizontal.elevation* (180/Math.PI);
+            if (elev > 10) {
+                let html = '<tr><td>' + key + '</td><td>' + Number((horizontal.azimuth).toFixed(1)).toString() + '</td><td>' + Number(elev.toFixed(1)).toString() + '</td><td>' + Number((horizontal.distance).toFixed(1)).toString() ;
                 html += '</td></tr>';
                 devicebody.innerHTML += html;
-            //}
+            }
         }
 
         p.marker.setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude));
