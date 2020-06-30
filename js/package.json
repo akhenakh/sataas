@@ -22,9 +22,10 @@
   },
   "dependencies": {
     "bootstrap": "^4.5.0",
+    "cheap-ruler": "^3.0.1",
     "google-protobuf": "^3.12.2",
     "grpc-web": "^1.2.0",
     "mapbox-gl": "^1.11.0",
-    "orb.js": "github:lizard-isana/orb.js"
+    "orb.js": "github:akhenakh/orb.js"
   }
 }

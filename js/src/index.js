@@ -1,14 +1,21 @@
 const {SatsRequest} = require('./satsvc_pb.js');
 const {PredictionClient} = require('./satsvc_grpc_web_pb.js');
 const mapboxgl = require('mapbox-gl');
-const {Orb} = require('orb.js/build/orb-satellite.v2.js');
+const {Orb} = require('orb.js/build/orb-satellite.v2');
+import  CheapRuler  from 'cheap-ruler/index';
 import './sat.png';
 import './style.css';
+
+var clocation = {
+    "latitude": 46.83,
+    "longitude": -71.25,
+    "altitude": 0
+};
 
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'https://map.dev.inair.space/osm-liberty-gl.style',
-    center: [2.2, 48.8],
+    center: [clocation.longitude, clocation.latitude],
     zoom: 4,
     maxZoom: 15,
     minZoom: 2,
@@ -23,25 +30,28 @@ var map = new mapboxgl.Map({
 });
 
 var sats = new Map();
+var cr = new CheapRuler(clocation.latitude, "kilometers");
 
-var clocation = {
-    "latitude": 48.8,
-    "longitude": 2.2,
-    "altitude": 0
-};
 
 function updatePositions() {
     var date = new Date();
     const devicebody = document.getElementById('sat_body');
-    //devicebody.innerHTML = '';
+    devicebody.innerHTML = '';
 
     for (let [key, p] of sats) {
         var latlng = p.sat.latlng(date);
-        // var observe = new Orb.Observation({"observer":clocation, "target":p.sat});
-        // var horizontal = observe.azel(date); // horizontal coordinates(azimuth, elevation)
-        // if (horizontal.elevation > 0) {
-        //     console.log("visible", p.sat, horizontal.elevation);
-        // }
+
+        const distance = cr.distance([clocation.longitude, clocation.latitude], [latlng.longitude, latlng.latitude]);
+        if (distance < 500) {
+            var observe = new Orb.Observation({"observer":clocation, "target":p.sat});
+            var horizontal = observe.azel(date); // horizontal coordinates(azimuth, elevation)
+            //if (horizontal.elevation > 2) {
+                let html = '<tr><td>' + key + '</td><td>' + Number((horizontal.azimuth).toFixed(1)).toString() + '</td><td>' + Number((horizontal.elevation).toFixed(1)).toString() ;
+                html += '</td></tr>';
+                devicebody.innerHTML += html;
+            //}
+        }
+
         p.marker.setLngLat(new mapboxgl.LngLat(latlng.longitude, latlng.latitude));
     }
 }
