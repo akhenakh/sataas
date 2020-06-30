@@ -264,8 +264,11 @@ func (s *Service) SatLocationFromObs(req *satsvc.SatLocationFromObsRequest,
 	}
 }
 
-// GenLocations gRPC exposed to generate positions
-func (s *Service) GenLocations(ctx context.Context, req *satsvc.GenLocationsRequest) (*satsvc.GenLocationsResponse, error) {
+// GenLocations gRPC exposed to generate positions.
+func (s *Service) GenLocations(
+	ctx context.Context,
+	req *satsvc.GenLocationsRequest,
+) (*satsvc.GenLocationsResponse, error) {
 	if len(req.NoradNumbers) == 0 && req.Category == 0 {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}

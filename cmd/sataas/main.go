@@ -159,9 +159,18 @@ func main() {
 				if r.ProtoMajor == 2 {
 					grpcWebServer.ServeHTTP(w, r)
 				} else {
-					w.Header().Set("Access-Control-Allow-Origin", "*")
-					w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-					w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-User-Agent, X-Grpc-Web")
+					w.Header().Set(
+						"Access-Control-Allow-Origin",
+						"*",
+					)
+					w.Header().Set(
+						"Access-Control-Allow-Methods",
+						"POST, GET, OPTIONS, PUT, DELETE",
+					)
+					w.Header().Set(
+						"Access-Control-Allow-Headers",
+						"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-User-Agent, X-Grpc-Web",
+					)
 					w.Header().Set("grpc-status", "")
 					w.Header().Set("grpc-message", "")
 					if grpcWebServer.IsGrpcWebRequest(r) {
