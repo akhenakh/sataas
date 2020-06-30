@@ -1,0 +1,59 @@
+# https://taskfile.dev
+version: '2'
+
+env:
+  CGO_ENALED: 1
+
+vars:
+  VERSION: {sh: git describe --always --tags}
+  BUILD_DATE: "{{now | date \"2006-01-02-1504\"}}"
+  LDFLAGS: -trimpath -ldflags "-X=main.version={{.VERSION}}-{{.BUILD_DATE}}"
+ 
+tasks:
+  default:
+    deps: [test, lint, sataas, js]
+
+  test:
+    cmds:
+      - go test -race ./...
+
+  lint:
+    cmds:
+      - golangci-lint run
+
+  sataas:
+    dir: cmd/sataas 
+    cmds:
+      - go build {{.LDFLAGS}}
+  
+  js:
+    dir: js
+    cmds:
+      - npm install
+      - npx webpack
+
+  swig:
+    dir: cppsgp4
+    cmds:
+      - swig -c++ -intgosize 64 -go SGP4.i
+
+  docker-image:
+    deps: [sataas, grpc_health_probe, js]
+    dir: cmd/sataas 
+    cmds:
+      - docker build . -t sataas:{{.VERSION}}
+      - docker tag sataas:{{.VERSION}} akhenakh/sataas:latest
+    
+  grpc_health_probe:
+    vars:
+      GRPC_HEALTH_PROBE_VERSION: v0.3.2
+    cmds:
+      - wget -qOcmd/sataas/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/{{.GRPC_HEALTH_PROBE_VERSION}}/grpc_health_probe-linux-amd64 
+      - chmod +x cmd/sataas/grpc_health_probe
+    status:
+      - test -f cmd/sataas/grpc_health_probe
+
+  clean:
+    cmds:
+      - rm -f cmd/sataas/sataas
+      - rm -f cmd/sataas/grpc_health_probe

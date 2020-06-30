@@ -12,6 +12,4 @@ steps:
     commands:
       - apk add --no-cache musl-dev build-base git
       - go test ./...
-      - make sataas
-      - make satcli
-      - make starlink
+      - make cicd-build 

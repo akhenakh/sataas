@@ -17,6 +17,7 @@
 .idea/
 
 /cmd/sataas/sataas
+/cmd/sataas/grpc_health_probe
 /cmd/satcli/satcli
 /cmd/starlink/starlink
 /cmd/starlinkweb/starlinkweb
