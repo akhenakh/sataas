@@ -47,7 +47,6 @@ tasks:
       - ./dist/index.html
       - ./dist/*.png
 
-
   swig:
     dir: cppsgp4
     cmds:

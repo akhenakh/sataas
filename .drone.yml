@@ -2,14 +2,8 @@ kind: pipeline
 name: default
 
 steps:
-  - name: linter
-    image: golangci/golangci-lint:v1.27.0
-    commands:
-      - golangci-lint run -v
-
-  - name: testbuild
+  - name: build
     image: golang:alpine
     commands:
       - apk add --no-cache musl-dev build-base git curl
-      - go test ./...
       - make cicd-build 
