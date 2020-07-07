@@ -1,8 +1,6 @@
 # https://taskfile.dev
 version: '2'
 
-env:
-  CGO_ENALED: 1
 
 vars:
   VERSION: {sh: git describe --always --tags}
@@ -14,9 +12,11 @@ tasks:
     deps: [test, lint, sataas, js]
 
   cicd-build:
-    deps: [testnorace, lint, sataas, js]
+    deps: [test, lint, sataas, js]
 
   test:
+    env:
+      CGO_ENABLED: 1
     cmds:
       - go test -race ./...
 
