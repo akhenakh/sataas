@@ -5,5 +5,5 @@ steps:
   - name: build
     image: golang:alpine
     commands:
-      - apk add --no-cache musl-dev build-base git curl
+      - apk add --no-cache musl-dev build-base git curl npm
       - make cicd-build 
