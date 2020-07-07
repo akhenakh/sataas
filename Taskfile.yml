@@ -13,9 +13,16 @@ tasks:
   default:
     deps: [test, lint, sataas, js]
 
+  cicd-build:
+    deps: [testnorace, lint, sataas, js]
+
   test:
     cmds:
       - go test -race ./...
+
+  testnorace:
+    cmds:
+      - go test ./...
 
   lint:
     cmds:
