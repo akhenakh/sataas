@@ -12,7 +12,7 @@ tasks:
     deps: [test, lint, sataas, js]
 
   cicd-build:
-    deps: [test, lint, sataas, js]
+    deps: [testnorace, lint, sataas, js]
 
   test:
     env:
