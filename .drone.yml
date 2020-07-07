@@ -7,3 +7,13 @@ steps:
     commands:
       - apk add --no-cache musl-dev build-base git curl npm
       - make cicd-build 
+
+  - name: deploy
+    image: golang:alpine
+    commands:
+      - echo "salut"
+    when:
+      event:
+      - promote
+      target:
+      - production
