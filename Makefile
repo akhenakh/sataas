@@ -12,4 +12,4 @@ cicd-build:
 ifndef TASK
 	curl -sL https://taskfile.dev/install.sh | sh
 endif
-	task -v
+	./bin/task -v
