@@ -22,20 +22,42 @@ tasks:
       - golangci-lint run
 
   sataas:
-    dir: cmd/sataas 
+    deps: [swig]
     cmds:
-      - go build {{.LDFLAGS}}
-  
+      - cd cmd/sataas && go build {{.LDFLAGS}}
+    sources:
+      - ./*.go
+      - cmd/sataas/*.go
+      - cppsgp4/*.go
+      - sgp4/*.go
+    generates:
+      - cmd/sataas/sataas
+
   js:
     dir: js
     cmds:
       - npm install
       - npx webpack
+    sources:
+      - ./package.json
+      - ./webpack.config.js
+      - ./src/*
+    generates:
+      - ./dist/bundle.js
+      - ./dist/index.html
+      - ./dist/*.png
+
 
   swig:
     dir: cppsgp4
     cmds:
       - swig -c++ -intgosize 64 -go SGP4.i
+    sources:
+      - ./*.h
+      - ./*.cc
+      - ./SGP4.i
+    generates:
+      - cppsgp4.go
 
   docker-image:
     deps: [sataas, grpc_health_probe, js]

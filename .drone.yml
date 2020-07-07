@@ -10,6 +10,6 @@ steps:
   - name: testbuild
     image: golang:alpine
     commands:
-      - apk add --no-cache musl-dev build-base git
+      - apk add --no-cache musl-dev build-base git curl
       - go test ./...
       - make cicd-build 
