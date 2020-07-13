@@ -14,6 +14,6 @@ ifndef TASK
 	curl -sL https://taskfile.dev/install.sh | sh -s -- -b  $(go env GOPATH)/bin 
 endif
 ifndef GOLANGCI
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.28.2
 endif
 	task -v cicd-build
