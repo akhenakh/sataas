@@ -15,6 +15,7 @@ steps:
     settings:
       repo: akhenakh/sataas
       dry_run: true
+      cache: true
       dockerfile: cmd/sataas/Dockerfile
       username:
         from_secret: docker_username
