@@ -1,5 +1,18 @@
 kind: pipeline
 type: kubernetes
+name: prtriggered
+
+steps:
+  - name: build
+    image: golang:alpine
+    commands:
+      - echo "from pr"
+    when:
+      event:
+        - pull_request
+---
+kind: pipeline
+type: kubernetes
 name: default
 
 steps:
