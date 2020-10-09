@@ -1,33 +1,13 @@
+
 kind: pipeline
 type: kubernetes
-name: default
+name: prtriggered
 
 steps:
   - name: build
     image: golang:alpine
     commands:
-      - apk add --no-cache musl-dev build-base git curl npm
-      - make cicd-build 
-
-  - name: build_image
-    #image: plugins/docker
-    image: akhenakh/drone-kaniko
-    settings:
-      repo: akhenakh/sataas
-      dry_run: true
-      dockerfile: cmd/sataas/Dockerfile
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-
-
-  - name: deploy
-    image: golang:alpine
-    commands:
-      - echo "salut"
+      - echo "from pr"
     when:
       event:
-      - promote
-      target:
-      - production
+        - pull_request
