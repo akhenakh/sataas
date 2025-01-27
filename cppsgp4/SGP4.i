@@ -9,6 +9,9 @@
 #include "Helpers.h"
 %}
 
+%{
+using namespace libsgp4;
+%}
 
 %include <typemaps.i>
 %include "std_string.i"
@@ -27,6 +30,7 @@ namespace std {
    %template(PassDetailsVector) vector<PassDetails>;
    %template(GeosVector) vector<CoordGeodetic>;
 }
+
 
 class SGP4 {
 public:

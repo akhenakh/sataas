@@ -2,6 +2,10 @@
 #include "SGP4.h"
 #include <vector>
 
+
+namespace libsgp4
+{
+  
 struct EventHorizonDetails {
   DateTime time;
   double azimuth;
@@ -45,3 +49,4 @@ double FindMaxElevation(
                         const DateTime& aos,
                         const DateTime& los);
 
+};

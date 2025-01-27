@@ -8,6 +8,9 @@
 #include <cmath>
 #include <iostream>
 
+namespace libsgp4
+{
+
 std::vector<struct CoordGeodetic> GeneratePosList(
                                                SGP4& sgp4,
                                                const DateTime& start_time,
@@ -363,3 +366,5 @@ double FindMaxElevation(
 
   return max_elevation;
 }
+
+};

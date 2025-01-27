@@ -15,11 +15,13 @@
  */
 
 
-#ifndef SOLARPOSITION_H_
-#define SOLARPOSITION_H_
+#pragma once
 
 #include "DateTime.h"
 #include "Eci.h"
+
+namespace libsgp4
+{
 
 /**
  * @brief Find the position of the sun
@@ -27,9 +29,7 @@
 class SolarPosition
 {
 public:
-    SolarPosition()
-    {
-    }
+    SolarPosition() = default;
 
     Eci FindPosition(const DateTime& dt);
 
@@ -37,4 +37,4 @@ private:
     double Delta_ET(double year) const;
 };
 
-#endif
+} // namespace libsgp4

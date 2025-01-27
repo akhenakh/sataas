@@ -15,11 +15,13 @@
  */
 
 
-#ifndef SATELLITEEXCEPTION_H_
-#define SATELLITEEXCEPTION_H_
+#pragma once
 
 #include <stdexcept>
 #include <string>
+
+namespace libsgp4
+{
 
 /**
  * @brief The exception that the SGP4 class throws upon an error.
@@ -27,10 +29,10 @@
 class SatelliteException : public std::runtime_error
 {
 public:
-    SatelliteException(const char* message)
+    explicit SatelliteException(const char* message)
         : runtime_error(message)
     {
     }
 };
 
-#endif
+} // namespace libsgp4
